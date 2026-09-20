@@ -1,0 +1,7 @@
+# Preserve supplied participant files byte-for-byte.
+/download2/** -text
+
+# Treat document formats as binary, including text-heavy PDFs.
+*.pdf binary
+*.docx binary
+*.xlsx binary
