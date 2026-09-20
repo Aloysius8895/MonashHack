@@ -5,7 +5,7 @@ import re
 from collections import Counter
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Protocol
 
 
@@ -84,11 +84,10 @@ def _validate_records(
     data_root: str | Path | None,
     strict: bool,
 ) -> ValidationResult:
-    del data_root  # Local attachment checks are added separately.
-
     valid_records: list[dict[str, object]] = []
     issues: list[ValidationIssue] = []
     seen_ids: set[str] = set()
+    resolved_root = Path(data_root).resolve() if data_root is not None else None
 
     for record in records:
         record_issues: list[ValidationIssue] = []
@@ -151,6 +150,7 @@ def _validate_records(
 
         attachments = record.get("attachments")
         if isinstance(attachments, list):
+            seen_attachments: set[str] = set()
             for attachment in attachments:
                 if not isinstance(attachment, str):
                     record_issues.append(
@@ -161,6 +161,30 @@ def _validate_records(
                             field="attachments",
                         )
                     )
+                    continue
+
+                normalized_attachment = attachment.replace("\\", "/")
+                duplicate_key = normalized_attachment.casefold()
+                if duplicate_key in seen_attachments:
+                    record_issues.append(
+                        ValidationIssue(
+                            code="duplicate_attachment",
+                            message=f"Duplicate attachment reference: {attachment}",
+                            email_id=email_id,
+                            field="attachments",
+                            attachment=attachment,
+                        )
+                    )
+                    continue
+                seen_attachments.add(duplicate_key)
+
+                attachment_issue = _validate_attachment_path(
+                    attachment,
+                    email_id=email_id,
+                    data_root=resolved_root,
+                )
+                if attachment_issue is not None:
+                    record_issues.append(attachment_issue)
 
         if record_issues:
             issues.extend(record_issues)
@@ -213,3 +237,53 @@ def _validate_records(
         raise DatasetValidationError(issues)
 
     return result
+
+
+def _validate_attachment_path(
+    attachment: str,
+    email_id: str | None,
+    data_root: Path | None,
+) -> ValidationIssue | None:
+    normalized = attachment.replace("\\", "/")
+    path = PurePosixPath(normalized)
+    has_windows_drive = bool(re.match(r"^[A-Za-z]:/", normalized))
+    is_allowed_relative_path = (
+        bool(normalized)
+        and not path.is_absolute()
+        and not has_windows_drive
+        and ".." not in path.parts
+        and len(path.parts) >= 2
+        and path.parts[0] == "attachments"
+    )
+    if not is_allowed_relative_path:
+        return ValidationIssue(
+            code="invalid_attachment_path",
+            message="Attachment path must remain inside the attachments directory",
+            email_id=email_id,
+            field="attachments",
+            attachment=attachment,
+        )
+
+    if data_root is None:
+        return None
+
+    attachment_root = (data_root / "attachments").resolve()
+    candidate = (data_root / Path(*path.parts)).resolve()
+    if not candidate.is_relative_to(attachment_root):
+        return ValidationIssue(
+            code="invalid_attachment_path",
+            message="Resolved attachment path is outside the attachments directory",
+            email_id=email_id,
+            field="attachments",
+            attachment=attachment,
+        )
+    if not candidate.is_file():
+        return ValidationIssue(
+            code="missing_attachment",
+            message=f"Attachment file does not exist: {attachment}",
+            email_id=email_id,
+            field="attachments",
+            attachment=attachment,
+        )
+
+    return None

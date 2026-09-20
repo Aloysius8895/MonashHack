@@ -1,4 +1,6 @@
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from email_classification.data_loader import (
     DatasetValidationError,
@@ -117,6 +119,85 @@ class DataLoaderTests(unittest.TestCase):
 
         self.assertEqual(raised.exception.issues[0].code, "inbox_read_error")
         self.assertIn("inbox unavailable", raised.exception.issues[0].message)
+
+    def test_existing_local_attachment_is_validated_without_being_read(self):
+        with TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            attachment_dir = root / "attachments"
+            attachment_dir.mkdir()
+            (attachment_dir / "email_001_SI.TXT").write_text(
+                "test attachment", encoding="utf-8"
+            )
+            inbox = FakeInbox(
+                [make_email(attachments=["attachments/email_001_SI.TXT"])]
+            )
+
+            result = load_and_validate(inbox, data_root=root)
+
+        self.assertEqual(result.summary.attachment_references, 1)
+        self.assertEqual(result.summary.attachment_extensions, {".txt": 1})
+        self.assertEqual(inbox.read_bytes_calls, 0)
+
+    def test_missing_local_attachment_is_reported(self):
+        with TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (root / "attachments").mkdir()
+
+            result = load_and_validate(
+                FakeInbox(
+                    [make_email(attachments=["attachments/email_001_SI.txt"])]
+                ),
+                data_root=root,
+                strict=False,
+            )
+
+        self.assertEqual(result.summary.valid_emails, 0)
+        self.assertEqual(result.issues[0].code, "missing_attachment")
+        self.assertEqual(
+            result.issues[0].attachment,
+            "attachments/email_001_SI.txt",
+        )
+
+    def test_unsafe_attachment_paths_are_rejected(self):
+        unsafe_paths = [
+            "../download/data_v2/ground_truth.json",
+            "attachments/../../outside.txt",
+            "C:/absolute/file.txt",
+            "/absolute/file.txt",
+            "inbox/email_001.json",
+        ]
+
+        with TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (root / "attachments").mkdir()
+            for index, unsafe_path in enumerate(unsafe_paths, start=1):
+                with self.subTest(path=unsafe_path):
+                    result = load_and_validate(
+                        FakeInbox(
+                            [
+                                make_email(
+                                    f"email_{index:03d}",
+                                    attachments=[unsafe_path],
+                                )
+                            ]
+                        ),
+                        data_root=root,
+                        strict=False,
+                    )
+
+                    self.assertEqual(result.summary.valid_emails, 0)
+                    self.assertEqual(result.issues[0].code, "invalid_attachment_path")
+
+    def test_duplicate_attachment_references_are_rejected(self):
+        path = "attachments/email_001_SI.txt"
+
+        result = load_and_validate(
+            FakeInbox([make_email(attachments=[path, path])]),
+            strict=False,
+        )
+
+        self.assertEqual(result.summary.valid_emails, 0)
+        self.assertEqual(result.issues[0].code, "duplicate_attachment")
 
 
 if __name__ == "__main__":
