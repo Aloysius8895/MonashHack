@@ -57,7 +57,7 @@ After classification is implemented in later authorized steps:
 - `outputs/usable/` will contain document-comparison records that are ready for
   the comparison pipeline.
 - `outputs/unusable/` will contain all other classified records.
-- The internal `category` values will be `comparison`, `spam`,
+- The internal `category` values will be `bl_comparison`, `spam`,
   `general_message`, `invoice_query`, and `new_si_request`.
 - The official submission adapter in Step 9 will map those internal values to
   `BL_COMPARISON`, `SPAM`, `GENERAL`, `INVOICE_QUERY`, and `SI_REQUEST`.
