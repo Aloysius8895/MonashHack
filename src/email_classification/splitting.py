@@ -9,6 +9,15 @@ from pathlib import PurePosixPath
 
 
 DEFAULT_SPLIT_SEED = 20260921
+ALLOWED_CATEGORIES = frozenset(
+    {
+        "bl_comparison",
+        "new_si_request",
+        "invoice_query",
+        "general_message",
+        "spam",
+    }
+)
 
 _EMAIL_PATTERN = re.compile(r"[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}", re.I)
 _URL_PATTERN = re.compile(r"https?://\S+", re.I)
@@ -32,6 +41,14 @@ class SplitRecord:
 class StageASelection:
     annotation_pool: tuple[SplitRecord, ...]
     production: tuple[SplitRecord, ...]
+    seed: int
+    source_id_hash: str
+
+
+@dataclass(frozen=True)
+class StageBSelection:
+    development: tuple[SplitRecord, ...]
+    final_test: tuple[SplitRecord, ...]
     seed: int
     source_id_hash: str
 
@@ -140,6 +157,7 @@ def select_annotation_pool(
         source_vector=source_vector,
         target_size=pool_size,
         require_pattern_coverage=True,
+        prefer_both_sides=False,
         error_context="exact annotation pool",
     )
 
@@ -171,12 +189,112 @@ def select_annotation_pool(
     )
 
 
+def finalize_labeled_split(
+    annotation_pool: Sequence[SplitRecord],
+    labels: Mapping[str, str],
+    development_size: int = 80,
+    test_size: int = 40,
+    seed: int = DEFAULT_SPLIT_SEED,
+) -> StageBSelection:
+    pool_ids = [record.email_id for record in annotation_pool]
+    if len(pool_ids) != len(set(pool_ids)):
+        raise SplitError("Annotation pool contains duplicate email IDs")
+    if development_size <= 0 or test_size <= 0:
+        raise SplitError("Development and final-test sizes must both be positive")
+    if development_size + test_size != len(annotation_pool):
+        raise SplitError(
+            "Development and final-test sizes must equal annotation pool size"
+        )
+
+    pool_id_set = set(pool_ids)
+    label_id_set = set(labels)
+    missing_ids = sorted(pool_id_set - label_id_set)
+    if missing_ids:
+        raise SplitError(f"Annotation file has missing labels for {len(missing_ids)} IDs")
+    unknown_ids = sorted(label_id_set - pool_id_set)
+    if unknown_ids:
+        raise SplitError(f"Annotation file has unknown label IDs: {unknown_ids[0]}")
+
+    invalid_categories = sorted(
+        {
+            category
+            for category in labels.values()
+            if category not in ALLOWED_CATEGORIES
+        }
+    )
+    if invalid_categories:
+        raise SplitError(f"Annotation file has invalid category: {invalid_categories[0]}")
+
+    categories = tuple(sorted(ALLOWED_CATEGORIES))
+    category_indexes = {
+        category: index for index, category in enumerate(categories)
+    }
+    source_vector = tuple(
+        sum(labels[email_id] == category for email_id in pool_ids)
+        for category in categories
+    )
+
+    records_by_group: dict[str, list[SplitRecord]] = defaultdict(list)
+    for record in annotation_pool:
+        records_by_group[record.group_id].append(record)
+    ordered_groups = sorted(
+        records_by_group,
+        key=lambda group_id: _seeded_group_key(seed, group_id),
+    )
+    group_vectors = {}
+    for group_id, group_records in records_by_group.items():
+        vector = [0] * len(categories)
+        for record in group_records:
+            vector[category_indexes[labels[record.email_id]]] += 1
+        group_vectors[group_id] = tuple(vector)
+
+    selected_groups = _select_groups(
+        ordered_groups=ordered_groups,
+        group_vectors=group_vectors,
+        source_vector=source_vector,
+        target_size=test_size,
+        require_pattern_coverage=False,
+        prefer_both_sides=True,
+        error_context="exact final test",
+    )
+    final_test = tuple(
+        sorted(
+            (
+                record
+                for record in annotation_pool
+                if record.group_id in selected_groups
+            ),
+            key=lambda record: record.email_id,
+        )
+    )
+    development = tuple(
+        sorted(
+            (
+                record
+                for record in annotation_pool
+                if record.group_id not in selected_groups
+            ),
+            key=lambda record: record.email_id,
+        )
+    )
+    if len(development) != development_size or len(final_test) != test_size:
+        raise SplitError("Internal split size verification failed")
+
+    return StageBSelection(
+        development=development,
+        final_test=final_test,
+        seed=seed,
+        source_id_hash=_source_id_hash(pool_ids),
+    )
+
+
 def _select_groups(
     ordered_groups: Sequence[str],
     group_vectors: Mapping[str, tuple[int, ...]],
     source_vector: tuple[int, ...],
     target_size: int,
     require_pattern_coverage: bool,
+    prefer_both_sides: bool,
     error_context: str,
 ) -> frozenset[str]:
     zero_vector = (0,) * len(source_vector)
@@ -209,11 +327,25 @@ def _select_groups(
         if sum(vector) == target_size
     ]
     if require_pattern_coverage:
-        candidates = [
+        covered_candidates = [
             candidate
             for candidate in candidates
             if all(count > 0 for count in candidate[0])
         ]
+        candidates = covered_candidates
+    elif prefer_both_sides:
+        covered_candidates = [
+            candidate
+            for candidate in candidates
+            if all(
+                source < 2 or 0 < selected < source
+                for selected, source in zip(
+                    candidate[0], source_vector, strict=True
+                )
+            )
+        ]
+        if covered_candidates:
+            candidates = covered_candidates
     if not candidates:
         raise SplitError(
             f"Cannot create {error_context} of size {target_size} without splitting a group"

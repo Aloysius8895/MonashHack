@@ -8,8 +8,10 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from email_classification.splitting import (
+    ALLOWED_CATEGORIES,
     SplitError,
     build_split_records,
+    finalize_labeled_split,
     select_annotation_pool,
 )
 
@@ -145,6 +147,89 @@ class SplitGroupingTests(unittest.TestCase):
 
         with self.assertRaisesRegex(SplitError, "exact annotation pool"):
             select_annotation_pool(records, pool_size=1, seed=20260921)
+
+
+class FinalizeLabeledSplitTests(unittest.TestCase):
+    def setUp(self):
+        stage_a = select_annotation_pool(
+            make_stage_a_records(), pool_size=120, seed=20260921
+        )
+        self.pool = stage_a.annotation_pool
+        categories = sorted(ALLOWED_CATEGORIES)
+        self.labels = {
+            record.email_id: categories[index % len(categories)]
+            for index, record in enumerate(self.pool)
+        }
+
+    def test_missing_labels_are_rejected(self):
+        incomplete = dict(self.labels)
+        incomplete.pop(next(iter(incomplete)))
+
+        with self.assertRaisesRegex(SplitError, "missing labels"):
+            finalize_labeled_split(self.pool, incomplete, 80, 40, 20260921)
+
+    def test_unknown_label_ids_are_rejected(self):
+        labels = dict(self.labels)
+        labels["email_999"] = "spam"
+
+        with self.assertRaisesRegex(SplitError, "unknown label IDs"):
+            finalize_labeled_split(self.pool, labels, 80, 40, 20260921)
+
+    def test_invalid_categories_are_rejected(self):
+        labels = dict(self.labels)
+        labels[next(iter(labels))] = "not_a_category"
+
+        with self.assertRaisesRegex(SplitError, "invalid category"):
+            finalize_labeled_split(self.pool, labels, 80, 40, 20260921)
+
+    def test_sizes_must_cover_the_annotation_pool(self):
+        with self.assertRaisesRegex(SplitError, "must equal annotation pool size"):
+            finalize_labeled_split(self.pool, self.labels, 70, 40, 20260921)
+
+    def test_stage_b_is_exact_deterministic_stratified_and_group_safe(self):
+        first = finalize_labeled_split(
+            self.pool, self.labels, 80, 40, 20260921
+        )
+        second = finalize_labeled_split(
+            self.pool, self.labels, 80, 40, 20260921
+        )
+
+        self.assertEqual(first, second)
+        self.assertEqual(len(first.development), 80)
+        self.assertEqual(len(first.final_test), 40)
+        development_ids = {record.email_id for record in first.development}
+        test_ids = {record.email_id for record in first.final_test}
+        self.assertFalse(development_ids & test_ids)
+        self.assertEqual(len(development_ids | test_ids), 120)
+
+        assignments = {}
+        for split_name, split_records in (
+            ("development", first.development),
+            ("final_test", first.final_test),
+        ):
+            for record in split_records:
+                assignments.setdefault(record.group_id, set()).add(split_name)
+        self.assertTrue(all(len(splits) == 1 for splits in assignments.values()))
+
+        development_categories = {self.labels[email_id] for email_id in development_ids}
+        test_categories = {self.labels[email_id] for email_id in test_ids}
+        self.assertEqual(development_categories, ALLOWED_CATEGORIES)
+        self.assertEqual(test_categories, ALLOWED_CATEGORIES)
+        self.assertRegex(first.source_id_hash, r"^[0-9a-f]{64}$")
+
+    def test_stage_b_rejects_impossible_group_preserving_size(self):
+        records = build_split_records(
+            [
+                make_email("email_001", "Same", "Same"),
+                make_email("email_002", "Same", "Same"),
+                make_email("email_003", "Other", "Other"),
+                make_email("email_004", "Other", "Other"),
+            ]
+        )
+        labels = {record.email_id: "spam" for record in records}
+
+        with self.assertRaisesRegex(SplitError, "exact final test"):
+            finalize_labeled_split(records, labels, 3, 1, 20260921)
 
 
 if __name__ == "__main__":

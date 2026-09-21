@@ -6,11 +6,14 @@ from .data_loader import (
     load_and_validate,
 )
 from .splitting import (
+    ALLOWED_CATEGORIES,
     DEFAULT_SPLIT_SEED,
     SplitError,
     SplitRecord,
     StageASelection,
+    StageBSelection,
     build_split_records,
+    finalize_labeled_split,
     select_annotation_pool,
 )
 
@@ -21,9 +24,12 @@ __all__ = [
     "ValidationResult",
     "load_and_validate",
     "DEFAULT_SPLIT_SEED",
+    "ALLOWED_CATEGORIES",
     "SplitError",
     "SplitRecord",
     "StageASelection",
+    "StageBSelection",
     "build_split_records",
+    "finalize_labeled_split",
     "select_annotation_pool",
 ]
