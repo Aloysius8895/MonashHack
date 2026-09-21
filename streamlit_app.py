@@ -143,7 +143,13 @@ if analyze:
         )
         classification_cols[1].metric(
             "Route",
-            "Verify documents" if result.comparison is not None else "No comparison",
+            (
+                "Verify documents"
+                if result.comparison is not None
+                else "Human review"
+                if result.routing_status == "human_review"
+                else "No comparison"
+            ),
         )
         classification_cols[2].write("**Routing decision**")
         classification_cols[2].write(result.routing_reason)
@@ -248,7 +254,12 @@ if analyze:
                         )
 
         st.subheader("4 · Organizer-format result")
-        st.caption(
-            "This JSON contains only the five properties accepted by the organizer submission contract."
-        )
-        st.json(result.submission)
+        if result.submission is None:
+            st.warning(
+                "No organizer result is claimed until a person confirms this uncertain email category."
+            )
+        else:
+            st.caption(
+                "This JSON contains only the five properties accepted by the organizer submission contract."
+            )
+            st.json(result.submission)

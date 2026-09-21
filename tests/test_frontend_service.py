@@ -1,6 +1,7 @@
 import sys
 import json
 from pathlib import Path
+from unittest.mock import patch
 
 import numpy as np
 
@@ -34,6 +35,15 @@ class FakeModel:
     def decision_function(self, texts):
         row = [-4.0 for _ in self.classes_]
         row[list(self.classes_).index(self.category)] = 4.0
+        return np.array([row for _ in texts])
+
+
+class LowMarginComparisonModel(FakeModel):
+    def __init__(self):
+        super().__init__("bl_comparison")
+
+    def decision_function(self, texts):
+        row = [0.11, 0.10, 0.0, -0.1, -0.2]
         return np.array([row for _ in texts])
 
 
@@ -200,6 +210,41 @@ def test_incompatible_model_artifact_is_a_configuration_error(tmp_path):
         pass
     else:
         raise AssertionError("incompatible model must raise DemoConfigurationError")
+
+
+def test_any_model_deserialization_failure_is_a_configuration_error(tmp_path):
+    artifacts = tmp_path / "artifacts" / "classification"
+    artifacts.mkdir(parents=True)
+    (artifacts / "selected_model.joblib").write_bytes(b"placeholder")
+    (artifacts / "run_summary.json").write_text(
+        '{"review_margin_threshold": 0.2}', encoding="utf-8"
+    )
+
+    with patch("frontend.service.joblib.load", side_effect=RuntimeError("version mismatch")):
+        try:
+            load_demo_runtime(tmp_path)
+        except DemoConfigurationError:
+            pass
+        else:
+            raise AssertionError("all model load failures must be safe configuration errors")
+
+
+def test_uncertain_bl_classification_does_not_claim_document_result():
+    runtime = DemoRuntime(
+        model=LowMarginComparisonModel(), review_margin_threshold=0.2
+    )
+
+    result = analyze_email(
+        runtime,
+        "Documents attached",
+        "Please review the attached files",
+        text_document("instructions.txt"),
+        text_document("draft.txt"),
+    )
+
+    assert result.routing_status == "human_review"
+    assert result.comparison is None
+    assert result.submission is None
 
 
 def test_bundled_email_001_runs_real_model_extraction_and_comparison():

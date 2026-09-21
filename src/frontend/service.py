@@ -82,7 +82,7 @@ class DemoResult:
     routing_reason: str
     rules_fired: tuple[str, ...]
     comparison: ComparisonView | None
-    submission: dict[str, object]
+    submission: dict[str, object] | None
 
 
 def load_demo_runtime(project_root: str | Path) -> DemoRuntime:
@@ -93,7 +93,7 @@ def load_demo_runtime(project_root: str | Path) -> DemoRuntime:
         model = joblib.load(model_path)
         summary = json.loads(summary_path.read_text(encoding="utf-8"))
         threshold = float(summary["review_margin_threshold"])
-    except (OSError, ValueError, TypeError, KeyError, json.JSONDecodeError) as error:
+    except Exception as error:
         raise DemoConfigurationError(
             "The classification model or its runtime summary could not be loaded."
         ) from error
@@ -132,9 +132,17 @@ def analyze_email(
     comparison = None
     submission = _submission(public_category)
     if public_category == "BL_COMPARISON":
-        comparison, submission = _analyze_documents(
-            public_category, si_document, bl_document
+        classification_needs_review = (
+            decision.status == "human_review"
+            and si_document is not None
+            and bl_document is not None
         )
+        if classification_needs_review:
+            submission = None
+        else:
+            comparison, submission = _analyze_documents(
+                public_category, si_document, bl_document
+            )
     return DemoResult(
         email_id=email_id,
         category=public_category,
