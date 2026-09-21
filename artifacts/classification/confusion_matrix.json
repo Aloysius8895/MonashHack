@@ -1,0 +1,47 @@
+{
+  "labels": [
+    "bl_comparison",
+    "general_message",
+    "invoice_query",
+    "new_si_request",
+    "spam"
+  ],
+  "model": "logistic_regression",
+  "values": [
+    [
+      220,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      60,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      75,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      125,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      40
+    ]
+  ]
+}

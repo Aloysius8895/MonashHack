@@ -1,0 +1,186 @@
+{
+  "candidates": {
+    "linear_svm": {
+      "metrics": {
+        "bl_comparison_false_negatives": 0,
+        "bl_comparison_false_positives": 0,
+        "confusion_matrix": {
+          "labels": [
+            "bl_comparison",
+            "general_message",
+            "invoice_query",
+            "new_si_request",
+            "spam"
+          ],
+          "values": [
+            [
+              220,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              60,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              75,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              125,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              40
+            ]
+          ]
+        },
+        "macro_f1": 1.0,
+        "macro_recall": 1.0,
+        "per_class": {
+          "bl_comparison": {
+            "f1": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "support": 220
+          },
+          "general_message": {
+            "f1": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "support": 60
+          },
+          "invoice_query": {
+            "f1": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "support": 75
+          },
+          "new_si_request": {
+            "f1": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "support": 125
+          },
+          "spam": {
+            "f1": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "support": 40
+          }
+        }
+      },
+      "review_margin_threshold": 1.658067346544
+    },
+    "logistic_regression": {
+      "metrics": {
+        "bl_comparison_false_negatives": 0,
+        "bl_comparison_false_positives": 0,
+        "confusion_matrix": {
+          "labels": [
+            "bl_comparison",
+            "general_message",
+            "invoice_query",
+            "new_si_request",
+            "spam"
+          ],
+          "values": [
+            [
+              220,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              60,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              75,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              125,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              40
+            ]
+          ]
+        },
+        "macro_f1": 1.0,
+        "macro_recall": 1.0,
+        "per_class": {
+          "bl_comparison": {
+            "f1": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "support": 220
+          },
+          "general_message": {
+            "f1": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "support": 60
+          },
+          "invoice_query": {
+            "f1": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "support": 75
+          },
+          "new_si_request": {
+            "f1": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "support": 125
+          },
+          "spam": {
+            "f1": 1.0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "support": 40
+          }
+        }
+      },
+      "review_margin_threshold": 1.810667623722
+    }
+  },
+  "schema_version": 1,
+  "seed": 20260921,
+  "selected_model": "logistic_regression",
+  "selection_order": [
+    "macro_f1",
+    "macro_recall",
+    "bl_comparison_recall"
+  ]
+}

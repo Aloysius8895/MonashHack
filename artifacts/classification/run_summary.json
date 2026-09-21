@@ -1,0 +1,33 @@
+{
+  "category_counts": {
+    "bl_comparison": 220,
+    "general_message": 60,
+    "invoice_query": 75,
+    "new_si_request": 125,
+    "spam": 40
+  },
+  "human_review_reasons": {
+    "low_score_margin": 19,
+    "missing_required_attachment": 96,
+    "model_rule_conflict": 22
+  },
+  "review_margin_threshold": 1.810667623722,
+  "route_counts": {
+    "unusable": 407,
+    "usable": 113
+  },
+  "schema_version": 1,
+  "seed": 20260921,
+  "selected_model": "logistic_regression",
+  "source_hashes": {
+    "annotations_sha256": "b79004fc90e8343e9b6a0a30b0424f7dd1187e9f4f645d09d698071b928af2e8",
+    "folds_sha256": "b5f2b0a7385aab139d54bcc711d0158886f720d752ab4d01b69d638bd3d45583",
+    "inbox_sha256": "3d75f6d27a5abf964a53e6401b01c76a297aae0cc6b429140227a49717318459"
+  },
+  "status_counts": {
+    "classified": 270,
+    "human_review": 137,
+    "ready_for_document_comparison": 113
+  },
+  "total_records": 520
+}

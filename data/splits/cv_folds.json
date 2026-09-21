@@ -1,0 +1,150 @@
+{
+  "annotation_sha256": "b79004fc90e8343e9b6a0a30b0424f7dd1187e9f4f645d09d698071b928af2e8",
+  "folds": [
+    {
+      "fold": 1,
+      "training_category_counts": {
+        "bl_comparison": 176,
+        "general_message": 48,
+        "invoice_query": 60,
+        "new_si_request": 100,
+        "spam": 32
+      },
+      "training_size": 416,
+      "validation_category_counts": {
+        "bl_comparison": 44,
+        "general_message": 12,
+        "invoice_query": 15,
+        "new_si_request": 25,
+        "spam": 8
+      },
+      "validation_proportion_deviations": {
+        "bl_comparison": 0.0,
+        "general_message": 0.0,
+        "invoice_query": 0.0,
+        "new_si_request": 0.0,
+        "spam": 0.0
+      },
+      "validation_size": 104
+    },
+    {
+      "fold": 2,
+      "training_category_counts": {
+        "bl_comparison": 176,
+        "general_message": 48,
+        "invoice_query": 60,
+        "new_si_request": 100,
+        "spam": 32
+      },
+      "training_size": 416,
+      "validation_category_counts": {
+        "bl_comparison": 44,
+        "general_message": 12,
+        "invoice_query": 15,
+        "new_si_request": 25,
+        "spam": 8
+      },
+      "validation_proportion_deviations": {
+        "bl_comparison": 0.0,
+        "general_message": 0.0,
+        "invoice_query": 0.0,
+        "new_si_request": 0.0,
+        "spam": 0.0
+      },
+      "validation_size": 104
+    },
+    {
+      "fold": 3,
+      "training_category_counts": {
+        "bl_comparison": 176,
+        "general_message": 48,
+        "invoice_query": 60,
+        "new_si_request": 100,
+        "spam": 32
+      },
+      "training_size": 416,
+      "validation_category_counts": {
+        "bl_comparison": 44,
+        "general_message": 12,
+        "invoice_query": 15,
+        "new_si_request": 25,
+        "spam": 8
+      },
+      "validation_proportion_deviations": {
+        "bl_comparison": 0.0,
+        "general_message": 0.0,
+        "invoice_query": 0.0,
+        "new_si_request": 0.0,
+        "spam": 0.0
+      },
+      "validation_size": 104
+    },
+    {
+      "fold": 4,
+      "training_category_counts": {
+        "bl_comparison": 176,
+        "general_message": 48,
+        "invoice_query": 60,
+        "new_si_request": 100,
+        "spam": 32
+      },
+      "training_size": 416,
+      "validation_category_counts": {
+        "bl_comparison": 44,
+        "general_message": 12,
+        "invoice_query": 15,
+        "new_si_request": 25,
+        "spam": 8
+      },
+      "validation_proportion_deviations": {
+        "bl_comparison": 0.0,
+        "general_message": 0.0,
+        "invoice_query": 0.0,
+        "new_si_request": 0.0,
+        "spam": 0.0
+      },
+      "validation_size": 104
+    },
+    {
+      "fold": 5,
+      "training_category_counts": {
+        "bl_comparison": 176,
+        "general_message": 48,
+        "invoice_query": 60,
+        "new_si_request": 100,
+        "spam": 32
+      },
+      "training_size": 416,
+      "validation_category_counts": {
+        "bl_comparison": 44,
+        "general_message": 12,
+        "invoice_query": 15,
+        "new_si_request": 25,
+        "spam": 8
+      },
+      "validation_proportion_deviations": {
+        "bl_comparison": 0.0,
+        "general_message": 0.0,
+        "invoice_query": 0.0,
+        "new_si_request": 0.0,
+        "spam": 0.0
+      },
+      "validation_size": 104
+    }
+  ],
+  "n_splits": 5,
+  "overall_category_counts": {
+    "bl_comparison": 220,
+    "general_message": 60,
+    "invoice_query": 75,
+    "new_si_request": 125,
+    "spam": 40
+  },
+  "schema_version": 1,
+  "seed": 20260921,
+  "sklearn_version": "1.9.1",
+  "source_id_hash": "32143be480827275d863984b797b93288b092b8be7a869c24e2b65892efa4d8f",
+  "strategy": "StratifiedGroupKFold",
+  "total_groups": 500,
+  "total_records": 520
+}
