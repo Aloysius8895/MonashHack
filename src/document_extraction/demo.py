@@ -1,17 +1,17 @@
 """Manual sanity check for the Document Intelligence extractors against the
 real sample dataset. Not part of the pipeline - run directly:
 
-    .venv\\Scripts\\python.exe document_extraction\\demo.py
-    .venv\\Scripts\\python.exe document_extraction\\demo.py --all
+    .venv\\Scripts\\python.exe src\\document_extraction\\demo.py
+    .venv\\Scripts\\python.exe src\\document_extraction\\demo.py --all
 """
 import argparse
 import json
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "download2"))
-sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "src"))
 
 from loader import Inbox  # noqa: E402
 

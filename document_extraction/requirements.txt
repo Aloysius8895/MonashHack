@@ -1,4 +1,0 @@
-pdfplumber
-python-docx
-openpyxl
-pytesseract

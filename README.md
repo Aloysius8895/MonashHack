@@ -6,15 +6,28 @@ Email classification and shipping-document verification project.
 
 Three independent modules under `src/`, sharing one dependency:
 
-- `email_classification` — routes inbox emails, built
-- `document_extraction` — reads SI/BL fields, interface only
-- `verification` — compares SI against BL, interface only
+- `email_classification` — routes inbox emails to comparison or human review
+- `document_extraction` — reads the 7 SI/BL fields from txt/xlsx/docx/pdf
+- `verification` — normalizes and compares SI against BL
 - `contracts` — schemas, handoff files, and ports that the three share
 - `pipeline` — wires the ports together
 
 Modules never import each other; they exchange versioned JSON handoff files
 through `contracts`. `tests/test_module_boundaries.py` enforces that rule.
 See [docs/architecture.md](docs/architecture.md) before adding a module.
+
+## Run the whole pipeline
+
+Classify the inbox, then extract and verify every comparison-ready pair:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\run_classification.py download2 data\splits\annotations.csv data\splits\cv_assignments.csv outputs artifacts\classification
+.\.venv\Scripts\python.exe scripts\run_pipeline.py download2 outputs\handoff
+```
+
+The second command reads `outputs/handoff/classification.json` and writes
+`extraction.json` and `verification.json` beside it. Pass `--no-llm-fallback`
+to skip the local Ollama lookup for fields no alias matched.
 
 ## Development setup
 

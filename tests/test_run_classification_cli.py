@@ -145,7 +145,17 @@ class RunClassificationCliTests(unittest.TestCase):
             self.assertEqual(set(comparison["candidates"]), {"logistic_regression", "linear_svm"})
             self.assertEqual(
                 set(sample),
-                {"category", "email_id", "model_category", "reason", "route", "rules_fired", "scores", "status"},
+                {
+                    "attachments",
+                    "category",
+                    "email_id",
+                    "model_category",
+                    "reason",
+                    "route",
+                    "rules_fired",
+                    "scores",
+                    "status",
+                },
             )
             self.assertTrue((artifact_root / "selected_model.joblib").is_file())
             self.assertTrue((artifact_root / "oof_predictions.csv").is_file())

@@ -1,6 +1,6 @@
 # Module Architecture
 
-Three workstreams build in parallel on separate branches. They must not import
+Three workstreams built in parallel on separate branches. They must not import
 each other. The only shared dependency is `src/contracts/`.
 
 ```
@@ -14,8 +14,6 @@ each other. The only shared dependency is `src/contracts/`.
 | email_          |  | document_         |  | verification   |
 | classification  |  | extraction        |  |                |
 +-----------------+  +-------------------+  +----------------+
-   feature/email-      feature/document-      feature/
-   classification      extraction             verification
 
                     +---------------------+
                     |    src/pipeline     |   wires the ports together
@@ -33,6 +31,21 @@ This is why `src/pipeline/orchestrator.py` receives an extractor and a verifier
 as arguments instead of importing them: the orchestrator knows the ports, never
 the implementations.
 
+## Each module keeps its own shape
+
+A module's internal representation is richer than what crosses the boundary,
+and that is deliberate. Each module owns exactly one adapter that translates:
+
+| Module | Internal | Adapter | Published |
+| --- | --- | --- | --- |
+| email_classification | `RoutingDecision`, internal categories (`bl_comparison`) | `contract_adapter.py` | `ClassificationResult`, published categories (`document_comparison`) |
+| document_extraction | `DocumentExtraction` with evidence, OCR and garbled flags | `adapter.py` | `ExtractionResult` — the 7 plain field values |
+| verification | `compare_documents` dict with `field_results`, normalized values | `adapter.py` | `VerificationResult`, status `match` / `mismatch_detected` / `not_verified` |
+
+Callers that want the richer detail (a human-review UI, debugging) use the
+module directly. Everything crossing a module boundary goes through the
+contract. Changing an internal vocabulary only touches that module's adapter.
+
 ## Stage handoff
 
 Stages communicate through JSON files, not function calls. A stage can be run,
@@ -49,25 +62,19 @@ rejects a file whose version or stage does not match what the caller expects.
 Attachment paths in the classification handoff are relative to the inbox bundle
 root (`download2/`), so they stay valid across machines.
 
-## Owning a stage
+## Failure handling
 
-`src/document_extraction/` and `src/verification/` currently hold the interface
-and raise `ExtractionUnavailable` / `VerificationUnavailable`. The orchestrator
-turns either into a `not_verified` result with `review_required`, so the
-pipeline runs end to end today and degrades to human review for the stages that
-are not built yet.
+An extractor or verifier that cannot process a pair raises
+`ExtractionUnavailable` / `VerificationUnavailable` rather than returning a
+partial result. The orchestrator turns either into a `not_verified` result with
+`review_required` and the reason, so one bad attachment never stops the run.
 
-To implement a stage:
-
-1. Fill in `extract()` or `verify()` in your own package. Do not touch another
-   package.
-2. Return the contract dataclass. Raise the matching `*Unavailable` error for
-   anything you cannot process, rather than returning a partial result.
-3. Add tests under `tests/`; use stub ports rather than the real neighbours.
+`document_extraction` imports pdfplumber, python-docx and openpyxl inside its
+format extractors. `adapter.py` loads them late, so a missing optional parser
+also degrades to a review item instead of breaking every import of the package.
 
 ## Category names
 
 `email_classification` uses internal category names (`bl_comparison`, ...).
 `contracts` uses the published names (`document_comparison`, ...).
-`email_classification/contract_adapter.py` is the only place that translates,
-so the internal vocabulary can change without touching downstream modules.
+`email_classification/contract_adapter.py` is the only place that translates.

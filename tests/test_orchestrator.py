@@ -128,20 +128,5 @@ class OrchestratorTests(unittest.TestCase):
             )
 
 
-class PlaceholderModuleTests(unittest.TestCase):
-    def test_unimplemented_modules_surface_as_review_items(self):
-        from document_extraction import AttachmentDocumentExtractor
-        from verification import FieldComparisonVerifier
-
-        outcome = run_verification_pipeline(
-            [classification()],
-            AttachmentDocumentExtractor("download2"),
-            FieldComparisonVerifier(),
-        )
-
-        self.assertEqual(outcome.review_required, ("email_001",))
-        self.assertEqual(outcome.verifications[0].status, "not_verified")
-
-
 if __name__ == "__main__":
     unittest.main()
