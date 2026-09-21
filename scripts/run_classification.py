@@ -25,6 +25,7 @@ for import_path in (PROJECT_ROOT, SRC_ROOT):
     if str(import_path) not in sys.path:
         sys.path.insert(0, str(import_path))
 
+from contracts import CLASSIFICATION_STAGE, HANDOFF_FILENAMES, write_handoff
 from email_classification import (
     CATEGORY_LABEL_MAP,
     DatasetValidationError,
@@ -38,6 +39,7 @@ from email_classification import (
     score_mapping,
     select_best_candidate,
 )
+from email_classification.contract_adapter import to_contract
 
 
 SEED = 20260921
@@ -96,6 +98,7 @@ def run_classification(
     model_predictions = [str(value) for value in model.predict(texts)]
     score_rows = score_mapping(model, texts)
     decisions = []
+    contract_results = []
     output_payloads: dict[str, dict[str, object]] = {}
     for record, model_category, scores in zip(
         ordered_records, model_predictions, score_rows, strict=True
@@ -108,6 +111,7 @@ def run_classification(
             unavailable_attachments=_unavailable_attachments(record, bundle),
         )
         decisions.append(decision)
+        contract_results.append(to_contract(decision, record))
         output_payloads[decision.email_id] = {
             "email_id": decision.email_id,
             "category": decision.category,
@@ -142,6 +146,10 @@ def run_classification(
         "status_counts": dict(sorted(status_counts.items())),
         "category_counts": dict(sorted(category_counts.items())),
         "human_review_reasons": dict(sorted(review_reasons.items())),
+        "comparison_ready": sum(
+            1 for result in contract_results if result.should_compare
+        ),
+        "handoff_file": f"handoff/{HANDOFF_FILENAMES[CLASSIFICATION_STAGE]}",
         "source_hashes": initial_hashes,
     }
     runtime = {
@@ -167,6 +175,7 @@ def run_classification(
         _publish_artifacts(artifact_stage, artifact_root)
         _publish_outputs(output_stage, output_root, generated_paths)
         _verify_published_outputs(output_root, set(output_payloads))
+        write_handoff(output_root / "handoff", CLASSIFICATION_STAGE, contract_results)
 
     if _source_hashes(bundle, annotation_path, fold_path) != initial_hashes:
         raise ClassificationRunError("A classification input changed during output writing")

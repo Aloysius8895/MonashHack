@@ -171,13 +171,36 @@ def _strong_evidence(
     return None, rules + (("conflicting_rule_evidence",) if len(categories) > 1 else ())
 
 
-def _attachment_names(record: Mapping[str, object]) -> tuple[str, ...]:
+def resolve_attachment_pair(
+    record: Mapping[str, object],
+) -> tuple[str | None, str | None]:
+    si_path: str | None = None
+    bl_path: str | None = None
+    for attachment in _attachment_paths(record):
+        name = PurePosixPath(attachment.replace("\\", "/")).name
+        if _SI_PATTERN.search(name):
+            if si_path is None:
+                si_path = attachment
+        elif _BL_PATTERN.search(name):
+            if bl_path is None:
+                bl_path = attachment
+    return si_path, bl_path
+
+
+def _attachment_paths(record: Mapping[str, object]) -> tuple[str, ...]:
     attachments = record.get("attachments")
     if not isinstance(attachments, list) or not all(
         isinstance(item, str) for item in attachments
     ):
         raise ValueError("Email field attachments must be a list of strings")
-    return tuple(PurePosixPath(item.replace("\\", "/")).name for item in attachments)
+    return tuple(attachments)
+
+
+def _attachment_names(record: Mapping[str, object]) -> tuple[str, ...]:
+    return tuple(
+        PurePosixPath(item.replace("\\", "/")).name
+        for item in _attachment_paths(record)
+    )
 
 
 def _score_margin(scores: Mapping[str, float]) -> float:

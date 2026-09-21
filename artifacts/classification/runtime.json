@@ -1,7 +1,7 @@
 {
   "candidate_seconds": {
-    "linear_svm": 1.818029,
-    "logistic_regression": 2.194287
+    "linear_svm": 0.951231,
+    "logistic_regression": 1.471196
   },
-  "total_seconds": 5.223516
+  "total_seconds": 3.213951
 }
