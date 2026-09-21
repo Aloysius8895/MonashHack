@@ -13,7 +13,7 @@ from frontend.inbox import InboxRecord, ResolvedDocuments, index_attachments, pa
 from frontend.reporting import dashboard_summary, report_csv, submission_json  # noqa: E402
 from frontend.review import FieldDecision, apply_review, pending_reviews, replace_after_rerun  # noqa: E402
 from frontend.service import UploadedDocument, load_demo_runtime  # noqa: E402
-from frontend.workbench import build_demo_scenarios, process_record, process_scenario, upsert_records  # noqa: E402
+from frontend.workbench import process_record, upsert_records  # noqa: E402
 
 
 st.set_page_config(page_title="Shipping Operations Workbench", page_icon="🚢", layout="wide", initial_sidebar_state="collapsed")
@@ -107,16 +107,6 @@ with input_tab:
         completed = [process_record(runtime(), record, resolve_record_documents(record, attachment_index)) for record in inbox_records]
         store(completed); st.session_state.processing_issues = parse_issues + attachment_issues; st.rerun()
 
-    st.divider(); st.subheader("Prepared demo")
-    scenarios = build_demo_scenarios(ROOT)
-    selected = st.selectbox("Choose a demo scenario", [item.name for item in scenarios], key="demo_scenario")
-    demo_cols = st.columns(2)
-    if demo_cols[0].button("Run selected scenario", key="run_selected_demo", width="stretch"):
-        scenario = next(item for item in scenarios if item.name == selected)
-        store((process_scenario(runtime(), scenario),)); st.rerun()
-    if demo_cols[1].button("Run all demo scenarios", key="run_all_demos", width="stretch"):
-        store(tuple(process_scenario(runtime(), item) for item in scenarios)); st.rerun()
-
     with st.expander("Manual email entry"):
         subject = st.text_input("Email subject", key="manual_subject")
         body = st.text_area("Email body", key="manual_body")
@@ -170,7 +160,7 @@ with review_tab:
 
 with report_tab:
     st.subheader("Operations report")
-    if not records: st.info("Run an inbox or demo scenario to create a report.")
+    if not records: st.info("Upload and run an inbox, or enter an email manually, to create a report.")
     else:
         download_cols = st.columns(2)
         download_cols[0].download_button("Download report (CSV)", report_csv(records), "shipping_report.csv", "text/csv")

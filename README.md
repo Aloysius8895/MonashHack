@@ -11,9 +11,9 @@ Users can upload one or more inbox JSON files and their TXT, PDF, DOCX, or XLSX
 attachments; files are matched by basename and processed in memory.
 
 Four tabs keep the workflow simple: **Input & Run**, **Human Review**,
-**Report**, and **Dashboard**. Five prepared scenarios exercise every route
-without setup and use real bundle records/documents rather than hard-coded
-results.
+**Report**, and **Dashboard**. The interface is designed for the organizer's
+real inbox JSON and shipping-document files, with a manual email-entry option
+for individual cases.
 
 ### Run locally on macOS or Linux
 
@@ -31,8 +31,8 @@ py -3.12 -m venv .venv
 .\.venv\Scripts\streamlit.exe run streamlit_app.py
 ```
 
-Open the local URL printed by Streamlit and click **Run all demo scenarios**
-for the shortest complete demonstration.
+Open the local URL printed by Streamlit, upload the organizer's inbox JSON and
+the referenced SI/draft-BL files, then click **Run uploaded inbox**.
 
 ### Deploy on Streamlit Community Cloud
 
@@ -42,17 +42,18 @@ for the shortest complete demonstration.
    GitHub account that can read the repository.
 3. Create an app, select this repository and branch, and set the entry point to
    `streamlit_app.py`.
-4. Deploy. The committed `requirements.txt`, model artifact, participant demo
-   data, and `.streamlit/config.toml` are sufficient; no secret is required.
-5. Open the generated public URL and run all demo scenarios once before
-   recording or submitting it.
+4. Deploy. The committed `requirements.txt`, model artifact, and
+   `.streamlit/config.toml` are sufficient; no secret is required.
+5. Open the generated public URL and run one organizer-provided inbox and its
+   attachments before recording or submitting it.
 
 The repository makes the app deployable but does not create a public URL by
 itself. The repository owner must complete the Community Cloud connection.
 
 ### Five-minute demonstration sequence
 
-1. In **Input & Run**, click **Run all demo scenarios**.
+1. In **Input & Run**, upload an inbox JSON file and its referenced SI/draft-BL
+   attachments, then click **Run uploaded inbox**.
 2. Show the compact route and plain-English pipeline steps for the latest email.
 3. Open **Human Review (2)** and resolve one exception with **Approve – no
    mismatch** or **Confirm mismatch**.
@@ -61,8 +62,8 @@ itself. The repository owner must complete the Community Cloud connection.
 5. Download **shipping_report.csv** and **submission.json**.
 6. Open **Dashboard** and point out the six KPIs, three summary charts, and the
    Needs action table.
-7. Return to **Input & Run** and select individual scenarios if the judges want
-   to inspect Match, Mismatch, Missing BL, Human Review, or Classify-only paths.
+7. Return to **Input & Run** and upload another organizer-provided case if the
+   judges want to inspect a different route.
 8. Expand **Technical details** last: show the automated output and explain that
    JEV is a future enhancement and is not used by this prototype.
 
