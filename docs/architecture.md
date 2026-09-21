@@ -18,6 +18,15 @@ each other. The only shared dependency is `src/contracts/`.
                     +---------------------+
                     |    src/pipeline     |   wires the ports together
                     +---------------------+   (depends on contracts only)
+
+                    +---------------------+
+                    |    src/frontend     |   interactive demo adapter
+                    +---------------------+   calls public module APIs
+                              ^
+                              |
+                    +---------------------+
+                    | streamlit_app.py    |   presentation only
+                    +---------------------+
 ```
 
 ## The rule
@@ -30,6 +39,18 @@ test or the suite fails.
 This is why `src/pipeline/orchestrator.py` receives an extractor and a verifier
 as arguments instead of importing them: the orchestrator knows the ports, never
 the implementations.
+
+The interactive demo is intentionally a presentation adapter rather than a
+fourth batch-processing stage. `src/frontend/service.py` accepts in-memory
+email and attachment inputs, calls the existing classifier, extractor, and
+comparator APIs, and returns immutable view records. `streamlit_app.py` renders
+those records and contains no classification or comparison policy. This keeps
+the existing handoff files and batch pipeline stable while allowing the UI to
+retain raw extraction evidence that the flat stage contracts omit.
+
+The public demo disables the optional Ollama fallback and does not use JEV.
+JEV remains a future classification enhancement that can implement the same
+category contract without changing document extraction or verification.
 
 ## Each module keeps its own shape
 

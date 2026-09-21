@@ -2,6 +2,122 @@
 
 Email classification and shipping-document verification project.
 
+## Interactive frontend demo
+
+The Streamlit frontend is a semi-working prototype, not a static mockup. It
+uses the committed classifier, the real multi-format document extractors, and
+the deterministic seven-field SI-to-draft-BL comparator. It supports editable
+email content, explicit SI and draft BL uploads, all five official categories,
+normalized comparison, human-review routing, traceable evidence, and a strict
+organizer-format JSON result. Supported uploads are TXT, PDF, DOCX, and XLSX.
+
+The default bundled example uses the real `email_001` record and attachments
+from `download2`, so a complete path can be demonstrated without preparing
+files.
+
+### Run locally on macOS or Linux
+
+```bash
+python3.12 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/streamlit run streamlit_app.py
+```
+
+### Run locally on Windows PowerShell
+
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\streamlit.exe run streamlit_app.py
+```
+
+Open the local URL printed by Streamlit. Choose **Bundled example** and click
+**Analyze email** for the shortest verified path.
+
+### Deploy on Streamlit Community Cloud
+
+1. Push this repository and the `feat/frontend-demo` branch to GitHub, or merge
+   the branch into `main` through a pull request.
+2. Sign in to [Streamlit Community Cloud](https://share.streamlit.io/) with the
+   GitHub account that can read the repository.
+3. Create an app, select this repository and branch, and set the entry point to
+   `streamlit_app.py`.
+4. Deploy. The committed `requirements.txt`, model artifact, participant demo
+   data, and `.streamlit/config.toml` are sufficient; no secret is required.
+5. Open the generated public URL and run the bundled example once before
+   recording or submitting it.
+
+The repository makes the app deployable but does not create a public URL by
+itself. The repository owner must complete the Community Cloud connection.
+
+### Five-minute demonstration sequence
+
+1. Open the app with **Bundled example** selected.
+2. Point out the editable subject/body and the real SI and draft BL filenames.
+3. Click **Analyze email**.
+4. Explain that the trained classifier selected **BL Comparison**, then show
+   the routing reason and the five model scores.
+5. Show the overall verification status and scan the seven-field table.
+6. Use gross weight to explain normalized equality, or use a mismatched row to
+   explain deterministic defect detection.
+7. Expand one item under **Traceable evidence** and show its raw label, raw
+   value, and source location.
+8. Show the organizer-format JSON and its five exact properties.
+9. Finish at the disclosure explaining that JEV is a future enhancement and is
+   not used by this prototype.
+
+### Current AI and known limitations
+
+The email classifier uses TF-IDF text features with the selected committed
+scikit-learn model and deterministic routing rules. JEV is **not** used in the
+current prototype; it is a future fallback or second-opinion enhancement for
+unfamiliar or low-confidence emails.
+
+The public demo disables the optional local Ollama extraction fallback for
+reproducibility. Text-based PDF, DOCX, XLSX, and TXT extraction works through
+the declared Python dependencies. Scanned image-only PDFs require a working
+Tesseract OCR installation on the host; if OCR is unavailable or evidence is
+unreadable, the result is routed to human review rather than treated as a
+match. Uploaded files are processed in memory and are not persisted by the
+frontend.
+
+### Organizer result shape
+
+The frontend's organizer view contains exactly these five properties:
+
+```json
+{
+  "category": "BL_COMPARISON",
+  "status": "MISMATCH",
+  "review_reason": null,
+  "defect_fields": ["container_count"],
+  "has_defect": true
+}
+```
+
+`NEEDS_REVIEW` uses only `wrong_doc_type`, `missing_attachment`, `unreadable`,
+or `missing_value`. Rich evidence remains in the interface and is not added to
+the official payload.
+
+### Preliminary submission checklist
+
+Completed in this repository:
+
+- working frontend source code and real end-to-end bundled demo;
+- local setup and public deployment instructions;
+- architecture, implementation details, limitations, and future roadmap;
+- tests for classifier integration, extraction, comparison, review routing,
+  and Streamlit rendering.
+
+Team actions still required:
+
+- deploy and submit the publicly accessible prototype URL;
+- record and submit the demo video, maximum five minutes;
+- submit the final project-description document or link;
+- submit the slide deck/documentation link;
+- include impact, metrics, results, or user feedback in the video/deck;
+- complete the organizer submission before 22 September 2026 at 12:00 PM.
+
 ## Architecture
 
 Three independent modules under `src/`, sharing one dependency:
@@ -11,6 +127,8 @@ Three independent modules under `src/`, sharing one dependency:
 - `verification` — normalizes and compares SI against BL
 - `contracts` — schemas, handoff files, and ports that the three share
 - `pipeline` — wires the ports together
+- `frontend` — adapts interactive inputs to the existing modules and preserves
+  detailed evidence for Streamlit
 
 Modules never import each other; they exchange versioned JSON handoff files
 through `contracts`. `tests/test_module_boundaries.py` enforces that rule.

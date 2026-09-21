@@ -14,6 +14,9 @@ ALLOWED_IMPORTS = {
     "document_extraction": frozenset({"contracts"}),
     "verification": frozenset({"contracts"}),
     "pipeline": frozenset({"contracts"}),
+    "frontend": frozenset(
+        {"contracts", "document_extraction", "email_classification", "verification"}
+    ),
 }
 
 
