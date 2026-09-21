@@ -1,6 +1,4 @@
-import os
 import re
-from pathlib import Path
 from typing import Any, Dict, Optional
 
 
@@ -15,272 +13,22 @@ FIELDS = [
     "port_of_loading",
     "port_of_discharge",
     "container_count",
-    "gross_weight"
+    "gross_weight_kg"
 ]
 
 
 # ============================================================
-# 2. FIELD ALIASES
-# ============================================================
-# These are the different labels that may appear in the
-# shipping documents for the same required field.
-#
-# Based on the actual hackathon documents.
-
-FIELD_ALIASES = {
-
-    "shipper": [
-        "shipper",
-        "shipper name",
-        "exporter",
-        "exporter name",
-        "seller"
-    ],
-
-    "consignee": [
-        "consignee",
-        "consignee name",
-        "consignee non negotiable",
-        "consignee non-negotiable",
-        "receiver",
-        "importer",
-        "buyer",
-
-        # BL may use this instead of "Consignee"
-        "to the order of"
-    ],
-
-    "notify_party": [
-        "notify",
-        "notify party",
-        "notify_party",
-        "notify person",
-        "notify party name"
-    ],
-
-    "port_of_loading": [
-        "port of loading",
-        "port of loading pol",
-        "loading port",
-        "load port",
-        "pol",
-        "place of loading",
-        "port of load"
-    ],
-
-    "port_of_discharge": [
-        "port of discharge",
-        "port of discharge pod",
-        "discharge port",
-        "pod",
-        "place of discharge",
-        "final destination"
-    ],
-
-    "container_count": [
-        "container count",
-        "container_count",
-        "containers",
-        "container quantity",
-        "container qty",
-        "number of containers",
-        "number of container",
-        "no of containers",
-        "no of container",
-        "no containers",
-        "total containers"
-    ],
-
-    "gross_weight": [
-        "gross weight",
-        "gross_weight",
-        "gross mass",
-        "gross wt",
-        "gross wt kgs",
-        "gross weight kg",
-        "gross weight kgs",
-        "total weight",
-        "total_weight",
-        "weight"
-    ]
-}
-
-
-# ============================================================
-# 3. NORMALIZE FIELD LABEL
-# ============================================================
-
-def normalize_label(label: str) -> str:
-    """
-    Normalize document labels so that slightly different
-    formatting can still be recognized.
-
-    Example:
-
-        "Port of Loading (POL)"
-        ->
-        "port of loading pol"
-
-        "Gross Wt (kgs)"
-        ->
-        "gross wt kgs"
-    """
-
-    if label is None:
-        return ""
-
-    label = str(label).strip().lower()
-
-    # Replace underscores with spaces
-    label = label.replace("_", " ")
-
-    # Replace brackets with spaces
-    label = label.replace("(", " ")
-    label = label.replace(")", " ")
-
-    # Replace slash with spaces
-    label = label.replace("/", " ")
-
-    # Replace punctuation with spaces
-    label = re.sub(r"[-:.,]", " ", label)
-
-    # Remove extra spaces
-    label = re.sub(r"\s+", " ", label)
-
-    return label.strip()
-
-
-# ============================================================
-# 4. IDENTIFY FIELD
-# ============================================================
-
-def identify_field(label: str) -> Optional[str]:
-    """
-    Convert a document label into one of the seven standard
-    fields.
-    """
-
-    normalized_label = normalize_label(label)
-
-    for field, aliases in FIELD_ALIASES.items():
-
-        for alias in aliases:
-
-            normalized_alias = normalize_label(alias)
-
-            if normalized_label == normalized_alias:
-                return field
-
-    return None
-
-
-# ============================================================
-# 5. EXTRACT FIELDS FROM TEXT
-# ============================================================
-
-def extract_fields_from_text(text: str) -> Dict[str, Any]:
-    """
-    Extract required fields from a text document.
-
-    Main format supported:
-
-        Shipper: ABC Company
-        Consignee: XYZ Company
-        Notify Party: XYZ Company
-
-    Also supports labels such as:
-
-        Consignee (Non-Negotiable): XYZ Company
-        Port of Loading (POL): NANTONG, CHINA
-        POD: KARACHI, PAKISTAN
-        Total Containers: 6 x 40'HC
-        Gross Wt (kgs): 131,058 KG
-    """
-
-    extracted = {}
-
-    lines = text.splitlines()
-
-    for line in lines:
-
-        line = line.strip()
-
-        if not line:
-            continue
-
-        # ----------------------------------------------------
-        # Look for:
-        #
-        # LABEL: VALUE
-        # ----------------------------------------------------
-
-        match = re.match(
-            r"^\s*([^:]+?)\s*:\s*(.*?)\s*$",
-            line
-        )
-
-        if not match:
-            continue
-
-        label = match.group(1).strip()
-        value = match.group(2).strip()
-
-        if not value:
-            continue
-
-        field = identify_field(label)
-
-        if field is not None:
-
-            extracted[field] = value
-
-    return extracted
-
-
-# ============================================================
-# 6. READ TEXT FILE
-# ============================================================
-
-def read_text_file(file_path: str) -> Optional[str]:
-    """
-    Read a text document.
-    """
-
-    try:
-
-        with open(
-            file_path,
-            "r",
-            encoding="utf-8",
-            errors="replace"
-        ) as file:
-
-            return file.read()
-
-    except FileNotFoundError:
-
-        print(
-            f"ERROR: File not found: {file_path}"
-        )
-
-        return None
-
-    except Exception as error:
-
-        print(
-            f"ERROR reading {file_path}: {error}"
-        )
-
-        return None
-
-
-# ============================================================
-# 7. GENERAL TEXT NORMALIZATION
+# 2. NORMALIZATION
 # ============================================================
 
 def normalize_text(value: Any) -> Optional[str]:
     """
     General text normalization.
+
+    Example:
+        "  ABC   Trading Sdn Bhd  "
+        ->
+        "abc trading sdn bhd"
     """
 
     if value is None:
@@ -291,39 +39,27 @@ def normalize_text(value: Any) -> Optional[str]:
     if not value:
         return None
 
-    # Lowercase
     value = value.lower()
 
-    # Normalize spaces
-    value = re.sub(
-        r"\s+",
-        " ",
-        value
-    )
+    # Normalize multiple spaces
+    value = re.sub(r"\s+", " ", value)
 
-    # Remove unnecessary punctuation at edges
-    value = value.strip(
-        " ,.;:"
-    )
+    # Remove unnecessary punctuation at the edges
+    value = value.strip(" ,.;:")
 
     return value
 
 
 # ============================================================
-# 8. NAME NORMALIZATION
+# 3. NAME NORMALIZATION
 # ============================================================
 
 def normalize_name(value: Any) -> Optional[str]:
     """
-    Conservative normalization for shipper, consignee and
-    notify party.
+    Conservative normalization for company/person names.
 
-    We intentionally do NOT remove words such as:
-        Ltd
-        Sdn Bhd
-        LLC
-
-    because these can be important parts of company names.
+    We do not remove words such as Ltd, LLC, Sdn Bhd, etc.
+    because they may be meaningful parts of the name.
     """
 
     value = normalize_text(value)
@@ -331,31 +67,20 @@ def normalize_name(value: Any) -> Optional[str]:
     if value is None:
         return None
 
-    # Convert & to and
-    value = value.replace(
-        "&",
-        "and"
-    )
+    # Treat & and "and" consistently
+    value = value.replace("&", "and")
 
     # Normalize punctuation
-    value = re.sub(
-        r"[.,]+",
-        " ",
-        value
-    )
+    value = re.sub(r"[.,]+", " ", value)
 
-    # Normalize spaces
-    value = re.sub(
-        r"\s+",
-        " ",
-        value
-    )
+    # Normalize spaces again
+    value = re.sub(r"\s+", " ", value)
 
     return value.strip()
 
 
 # ============================================================
-# 9. PORT NORMALIZATION
+# 4. PORT NORMALIZATION
 # ============================================================
 
 def normalize_port(value: Any) -> Optional[str]:
@@ -363,13 +88,9 @@ def normalize_port(value: Any) -> Optional[str]:
     Normalize port names.
 
     Example:
-
-        NANTONG, CHINA (CNNTG)
+        "NANTONG, CHINA (CNNTG)"
         ->
-        nantong, china
-
-    This prevents a location code such as (CNNTG) from
-    causing a false mismatch.
+        "nantong, china"
     """
 
     value = normalize_text(value)
@@ -377,21 +98,21 @@ def normalize_port(value: Any) -> Optional[str]:
     if value is None:
         return None
 
-    # Remove "port of"
+    # Remove "port of" at the beginning
     value = re.sub(
         r"^port of\s+",
         "",
         value
     )
 
-    # Remove location codes in brackets
+    # Remove port/location codes in brackets
     value = re.sub(
         r"\s*\([a-z0-9]{4,6}\)\s*$",
         "",
         value
     )
 
-    # Remove extra spaces
+    # Normalize spaces
     value = re.sub(
         r"\s+",
         " ",
@@ -402,28 +123,19 @@ def normalize_port(value: Any) -> Optional[str]:
 
 
 # ============================================================
-# 10. CONTAINER COUNT NORMALIZATION
+# 5. CONTAINER COUNT NORMALIZATION
 # ============================================================
 
 def normalize_container_count(
     value: Any
 ) -> Optional[int]:
     """
-    Extract the number of containers.
+    Convert container count into an integer.
 
     Examples:
-
-        "6"
-        -> 6
-
-        "6 containers"
-        -> 6
-
-        "6 x 40'HC"
-        -> 6
-
-        "No. of containers: 4"
-        -> 4
+        "6"            -> 6
+        "6 containers" -> 6
+        "6 x 40'HC"   -> 6
     """
 
     if value is None:
@@ -445,9 +157,7 @@ def normalize_container_count(
 
     try:
 
-        count = int(
-            match.group()
-        )
+        count = int(match.group())
 
         if count < 0:
             return None
@@ -460,25 +170,19 @@ def normalize_container_count(
 
 
 # ============================================================
-# 11. GROSS WEIGHT NORMALIZATION
+# 6. GROSS WEIGHT NORMALIZATION
 # ============================================================
 
 def normalize_weight(
     value: Any
 ) -> Optional[float]:
     """
-    Convert gross weight into kilograms.
+    Normalize gross weight into kilograms.
 
     Examples:
-
-        "131,058 KG"
-        -> 131058.0
-
-        "131058 kilograms"
-        -> 131058.0
-
-        "131058"
-        -> 131058.0
+        "131,058 KG"       -> 131058.0
+        "131058 kilograms" -> 131058.0
+        "131058"           -> 131058.0
     """
 
     if value is None:
@@ -490,39 +194,18 @@ def normalize_weight(
         return None
 
     # Remove commas
-    value = value.replace(
-        ",",
-        ""
-    )
+    value = value.replace(",", "")
 
-    # Remove units
-    value = value.replace(
-        "kilograms",
-        ""
-    )
-
-    value = value.replace(
-        "kilogram",
-        ""
-    )
-
-    value = value.replace(
-        "kgs",
-        ""
-    )
-
-    value = value.replace(
-        "kg",
-        ""
-    )
+    # Remove common units
+    value = value.replace("kilograms", "")
+    value = value.replace("kilogram", "")
+    value = value.replace("kgs", "")
+    value = value.replace("kg", "")
 
     # Remove spaces
-    value = value.replace(
-        " ",
-        ""
-    )
+    value = value.replace(" ", "")
 
-    # Find numeric value
+    # Extract numeric value
     match = re.search(
         r"\d+(?:\.\d+)?",
         value
@@ -533,9 +216,7 @@ def normalize_weight(
 
     try:
 
-        return float(
-            match.group()
-        )
+        return float(match.group())
 
     except ValueError:
 
@@ -543,37 +224,34 @@ def normalize_weight(
 
 
 # ============================================================
-# 12. NORMALIZE VALUE BASED ON FIELD
+# 7. FIELD NORMALIZATION
 # ============================================================
 
 def normalize_value(
     field: str,
     value: Any
 ) -> Any:
+    """
+    Apply the appropriate normalization based on field type.
+    """
 
     if value is None:
         return None
 
-    if field == "gross_weight":
+    if field == "gross_weight_kg":
 
-        return normalize_weight(
-            value
-        )
+        return normalize_weight(value)
 
     elif field == "container_count":
 
-        return normalize_container_count(
-            value
-        )
+        return normalize_container_count(value)
 
     elif field in [
         "port_of_loading",
         "port_of_discharge"
     ]:
 
-        return normalize_port(
-            value
-        )
+        return normalize_port(value)
 
     elif field in [
         "shipper",
@@ -581,155 +259,23 @@ def normalize_value(
         "notify_party"
     ]:
 
-        return normalize_name(
-            value
-        )
+        return normalize_name(value)
 
-    return normalize_text(
-        value
-    )
+    return normalize_text(value)
 
 
 # ============================================================
-# 13. GET FIELD VALUE
-# ============================================================
-
-def get_field_value(
-    document: Dict[str, Any],
-    field: str
-) -> Any:
-    """
-    Find a field using its standard name or aliases.
-    """
-
-    if field in document:
-        return document[field]
-
-    aliases = FIELD_ALIASES.get(
-        field,
-        []
-    )
-
-    normalized_document = {}
-
-    for key, value in document.items():
-
-        normalized_key = normalize_label(
-            key
-        )
-
-        normalized_document[
-            normalized_key
-        ] = value
-
-    for alias in aliases:
-
-        normalized_alias = normalize_label(
-            alias
-        )
-
-        if normalized_alias in normalized_document:
-
-            return normalized_document[
-                normalized_alias
-            ]
-
-    return None
-
-
-# ============================================================
-# 14. EXTRACTION VALUE + CONFIDENCE
-# ============================================================
-
-def extract_value_and_confidence(
-    document: Dict[str, Any],
-    field: str
-):
-    """
-    Supports:
-
-        "shipper": "ABC Company"
-
-    and:
-
-        "shipper": {
-            "value": "ABC Company",
-            "confidence": 0.95
-        }
-    """
-
-    raw_value = get_field_value(
-        document,
-        field
-    )
-
-    if raw_value is None:
-        return None, None
-
-    # Advanced format
-    if isinstance(
-        raw_value,
-        dict
-    ):
-
-        value = raw_value.get(
-            "value"
-        )
-
-        confidence = raw_value.get(
-            "confidence"
-        )
-
-        return value, confidence
-
-    # Simple format
-    return raw_value, None
-
-
-# ============================================================
-# 15. CONFIDENCE CHECK
-# ============================================================
-
-CONFIDENCE_THRESHOLD = 0.80
-
-
-def is_low_confidence(
-    confidence: Any
-) -> bool:
-
-    if confidence is None:
-        return False
-
-    try:
-
-        confidence = float(
-            confidence
-        )
-
-        return (
-            confidence
-            < CONFIDENCE_THRESHOLD
-        )
-
-    except (
-        ValueError,
-        TypeError
-    ):
-
-        return True
-
-
-# ============================================================
-# 16. COMPARE ONE FIELD
+# 8. COMPARE ONE FIELD
 # ============================================================
 
 def compare_field(
     field: str,
     si_value: Any,
-    bl_value: Any,
-    si_confidence: Optional[float] = None,
-    bl_confidence: Optional[float] = None
+    bl_value: Any
 ) -> Dict[str, Any]:
+    """
+    Compare one field between SI and BL.
+    """
 
     normalized_si = normalize_value(
         field,
@@ -742,7 +288,7 @@ def compare_field(
     )
 
     # --------------------------------------------------------
-    # Missing / unreadable
+    # Missing value
     # --------------------------------------------------------
 
     if (
@@ -753,182 +299,121 @@ def compare_field(
         missing_side = []
 
         if normalized_si is None:
-            missing_side.append(
-                "SI"
-            )
+            missing_side.append("SI")
 
         if normalized_bl is None:
-            missing_side.append(
-                "BL"
-            )
+            missing_side.append("BL")
 
         return {
-
-            "status": "REVIEW",
+            "status": "NEEDS_REVIEW",
+            "review_reason": "missing_value",
 
             "field": field,
 
             "si_value": si_value,
-
             "bl_value": bl_value,
 
             "normalized_si": normalized_si,
-
             "normalized_bl": normalized_bl,
-
-            "si_confidence": si_confidence,
-
-            "bl_confidence": bl_confidence,
 
             "reason":
                 "Missing or unreadable value in: "
-                + ", ".join(
-                    missing_side
-                )
+                + ", ".join(missing_side)
         }
 
     # --------------------------------------------------------
-    # Low extraction confidence
-    # --------------------------------------------------------
-
-    if (
-        is_low_confidence(
-            si_confidence
-        )
-        or
-        is_low_confidence(
-            bl_confidence
-        )
-    ):
-
-        return {
-
-            "status": "REVIEW",
-
-            "field": field,
-
-            "si_value": si_value,
-
-            "bl_value": bl_value,
-
-            "normalized_si": normalized_si,
-
-            "normalized_bl": normalized_bl,
-
-            "si_confidence": si_confidence,
-
-            "bl_confidence": bl_confidence,
-
-            "reason":
-                "Extraction confidence is below threshold."
-        }
-
-    # --------------------------------------------------------
-    # MATCH
+    # Values match
     # --------------------------------------------------------
 
     if normalized_si == normalized_bl:
 
         return {
-
-            "status": "MATCH",
+            "status": "OK",
+            "review_reason": None,
 
             "field": field,
 
             "si_value": si_value,
-
             "bl_value": bl_value,
 
             "normalized_si": normalized_si,
-
             "normalized_bl": normalized_bl,
 
-            "si_confidence": si_confidence,
-
-            "bl_confidence": bl_confidence,
-
-            "reason":
-                "SI and BL values match."
+            "reason": "SI and BL values match."
         }
 
     # --------------------------------------------------------
-    # MISMATCH
+    # Values mismatch
     # --------------------------------------------------------
 
     return {
-
         "status": "MISMATCH",
+        "review_reason": None,
 
         "field": field,
 
         "si_value": si_value,
-
         "bl_value": bl_value,
 
         "normalized_si": normalized_si,
-
         "normalized_bl": normalized_bl,
 
-        "si_confidence": si_confidence,
-
-        "bl_confidence": bl_confidence,
-
-        "reason":
-            "SI and BL values are different."
+        "reason": "SI and BL values are different."
     }
 
 
 # ============================================================
-# 17. COMPARE ALL 7 FIELDS
+# 9. COMPARE SI AGAINST BL
 # ============================================================
 
 def compare_documents(
     si: Dict[str, Any],
     bl: Dict[str, Any]
 ) -> Dict[str, Any]:
+    """
+    Compare the seven required fields.
+
+    IMPORTANT:
+    This function assumes extraction/OCR has already happened.
+
+    Input example:
+
+        si = {
+            "shipper": "...",
+            "consignee": "...",
+            ...
+            "gross_weight_kg": "22000 KG"
+        }
+
+    No document extraction is performed here.
+    """
 
     mismatches = []
-
     review_fields = []
-
     field_results = {}
+
+    # --------------------------------------------------------
+    # Compare all seven fields
+    # --------------------------------------------------------
 
     for field in FIELDS:
 
-        si_value, si_confidence = (
-            extract_value_and_confidence(
-                si,
-                field
-            )
-        )
+        si_value = si.get(field)
 
-        bl_value, bl_confidence = (
-            extract_value_and_confidence(
-                bl,
-                field
-            )
-        )
+        bl_value = bl.get(field)
 
         result = compare_field(
             field=field,
             si_value=si_value,
-            bl_value=bl_value,
-            si_confidence=si_confidence,
-            bl_confidence=bl_confidence
+            bl_value=bl_value
         )
 
-        field_results[
-            field
-        ] = result
+        field_results[field] = result
 
-        # ----------------------------------------------------
-        # Mismatch
-        # ----------------------------------------------------
-
+        # Store mismatches
         if result["status"] == "MISMATCH":
 
             mismatches.append({
-
                 "field": field,
 
                 "si_value": si_value,
@@ -942,80 +427,62 @@ def compare_documents(
                     result["normalized_bl"]
             })
 
-        # ----------------------------------------------------
-        # Review
-        # ----------------------------------------------------
-
-        elif result["status"] == "REVIEW":
+        # Store review fields
+        elif result["status"] == "NEEDS_REVIEW":
 
             review_fields.append({
-
                 "field": field,
 
                 "reason":
-                    result["reason"]
+                    result["review_reason"]
             })
 
     # ========================================================
-    # FINAL DECISION
+    # FINAL STATUS
     # ========================================================
 
-    # Human review has priority
+    # Human review takes priority
     if review_fields:
 
-        decision = "HUMAN_REVIEW"
+        status = "NEEDS_REVIEW"
 
-        confidence = "LOW"
+        reason = review_fields[0]["reason"]
 
-        reason = (
-            "One or more required fields are "
-            "missing, unreadable, or uncertain."
-        )
-
+    # Mismatch exists
     elif mismatches:
 
-        decision = "MISMATCH"
+        status = "MISMATCH"
 
-        confidence = "HIGH"
+        reason = None
 
-        reason = (
-            f"{len(mismatches)} required field(s) "
-            "differ between the SI and BL."
-        )
-
+    # Everything matches
     else:
 
-        decision = "MATCH"
+        status = "OK"
 
-        confidence = "HIGH"
+        reason = None
 
-        reason = "No mismatch detected."
+    # ========================================================
+    # FINAL RESULT
+    # ========================================================
 
     return {
+        "status": status,
 
-        "decision": decision,
+        "review_reason": reason,
 
-        "confidence": confidence,
+        "mismatch": len(mismatches) > 0,
 
-        "mismatch":
-            len(mismatches) > 0,
+        "mismatches": mismatches,
 
-        "mismatches":
-            mismatches,
+        "review_fields": review_fields,
 
-        "review_fields":
-            review_fields,
-
-        "reason":
-            reason,
-
-        "field_results":
-            field_results
+        "field_results": field_results
     }
 
 
 # ============================================================
-# 18. PRINT RESULT
+# 10. PRINT RESULT
 # ============================================================
 
 def print_result(
@@ -1028,7 +495,7 @@ def print_result(
     )
 
     print(
-        "FINAL VERIFICATION RESULT"
+        "VERIFICATION RESULT"
     )
 
     print(
@@ -1036,24 +503,15 @@ def print_result(
     )
 
     print(
-        f"\nDecision: "
-        f"{result['decision']}"
+        f"\nStatus: {result['status']}"
     )
 
-    print(
-        f"Confidence: "
-        f"{result['confidence']}"
-    )
+    if result["review_reason"]:
 
-    print(
-        f"Reason: "
-        f"{result['reason']}"
-    )
-
-    print(
-        f"\nMismatch: "
-        f"{result['mismatch']}"
-    )
+        print(
+            f"Review reason: "
+            f"{result['review_reason']}"
+        )
 
     # --------------------------------------------------------
     # Mismatches
@@ -1063,9 +521,7 @@ def print_result(
 
     if result["mismatches"]:
 
-        for mismatch in result[
-            "mismatches"
-        ]:
+        for mismatch in result["mismatches"]:
 
             print(
                 f"\n- {mismatch['field']}"
@@ -1083,23 +539,17 @@ def print_result(
 
     else:
 
-        print(
-            "- None"
-        )
+        print("- None")
 
     # --------------------------------------------------------
     # Review fields
     # --------------------------------------------------------
 
-    print(
-        "\nReview fields:"
-    )
+    print("\nReview fields:")
 
     if result["review_fields"]:
 
-        for review in result[
-            "review_fields"
-        ]:
+        for review in result["review_fields"]:
 
             print(
                 f"- {review['field']}: "
@@ -1108,136 +558,68 @@ def print_result(
 
     else:
 
-        print(
-            "- None"
-        )
+        print("- None")
 
 
 # ============================================================
-# 19. TEST REAL HACKATHON DOCUMENTS
+# 11. TESTING
 # ============================================================
+# This is only for testing your verification module.
+# Your teammate's extraction/OCR module will eventually
+# provide the SI and BL dictionaries instead.
 
-def test_real_documents(
-    si_file: str,
-    bl_file: str
-):
+def run_test():
 
-    print("\n")
-    print(
-        "============================================================"
-    )
+    si = {
+        "shipper":
+            "APRIL FAR EAST (M) SDN BHD",
 
-    print(
-        "REAL HACKATHON DOCUMENT TEST"
-    )
+        "consignee":
+            "EAST BRIGHT FZ-LLC",
 
-    print(
-        "============================================================"
-    )
+        "notify_party":
+            "EAST BRIGHT FZ-LLC",
 
-    print(
-        f"\nSI file:\n{si_file}"
-    )
+        "port_of_loading":
+            "NANTONG, CHINA (CNNTG)",
 
-    print(
-        f"\nBL file:\n{bl_file}"
-    )
+        "port_of_discharge":
+            "KARACHI, PAKISTAN (PKKHI)",
 
-    # --------------------------------------------------------
-    # Read SI
-    # --------------------------------------------------------
+        "container_count":
+            "6 x 40'HC",
 
-    si_text = read_text_file(
-        si_file
-    )
+        "gross_weight_kg":
+            "131,058 KG"
+    }
 
-    # --------------------------------------------------------
-    # Read BL
-    # --------------------------------------------------------
+    bl = {
+        "shipper":
+            "APRIL FAR EAST (M) SDN BHD",
 
-    bl_text = read_text_file(
-        bl_file
-    )
+        "consignee":
+            "UAB NOVAKOPA",
 
-    if (
-        si_text is None
-        or bl_text is None
-    ):
+        "notify_party":
+            "UAB NOVAKOPA",
 
-        return
+        "port_of_loading":
+            "NANTONG, CHINA (CNNTG)",
 
-    # --------------------------------------------------------
-    # Extract SI
-    # --------------------------------------------------------
+        "port_of_discharge":
+            "KARACHI, PAKISTAN (PKKHI)",
 
-    si = extract_fields_from_text(
-        si_text
-    )
+        "container_count":
+            "6 x 40'HC",
 
-    # --------------------------------------------------------
-    # Extract BL
-    # --------------------------------------------------------
-
-    bl = extract_fields_from_text(
-        bl_text
-    )
-
-    # --------------------------------------------------------
-    # Display SI extraction
-    # --------------------------------------------------------
-
-    print(
-        "\n-------------------- EXTRACTED SI --------------------"
-    )
-
-    for field in FIELDS:
-
-        value = si.get(
-            field,
-            None
-        )
-
-        if value is None:
-            value = "[NOT FOUND]"
-
-        print(
-            f"{field}: {value}"
-        )
-
-    # --------------------------------------------------------
-    # Display BL extraction
-    # --------------------------------------------------------
-
-    print(
-        "\n-------------------- EXTRACTED BL --------------------"
-    )
-
-    for field in FIELDS:
-
-        value = bl.get(
-            field,
-            None
-        )
-
-        if value is None:
-            value = "[NOT FOUND]"
-
-        print(
-            f"{field}: {value}"
-        )
-
-    # --------------------------------------------------------
-    # Compare
-    # --------------------------------------------------------
+        "gross_weight_kg":
+            "131058 KG"
+    }
 
     result = compare_documents(
         si,
         bl
     )
-
-    # --------------------------------------------------------
-    # Print final result
-    # --------------------------------------------------------
 
     print_result(
         result
@@ -1245,30 +627,9 @@ def test_real_documents(
 
 
 # ============================================================
-# 20. RUN
+# 12. RUN
 # ============================================================
 
 if __name__ == "__main__":
 
-    # Your current VS Code working directory is:
-    #
-    # C:\Users\User\Documents\MonashHack
-    #
-    # Therefore we include "download2" in the path.
-
-    si_file = os.path.join(
-        "download2",
-        "attachments",
-        "email_004_SI.txt"
-    )
-
-    bl_file = os.path.join(
-        "download2",
-        "attachments",
-        "email_004_BL.txt"
-    )
-
-    test_real_documents(
-        si_file,
-        bl_file
-    )
+    run_test()
