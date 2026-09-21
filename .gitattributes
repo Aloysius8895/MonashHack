@@ -1,6 +1,10 @@
 # Preserve supplied participant files byte-for-byte.
 /download2/** -text
 
+# Split inputs are hashed byte-for-byte into run provenance. Checking them out
+# as CRLF on Windows would make source_hashes disagree across machines.
+/data/splits/** text eol=lf
+
 # Treat document formats as binary, including text-heavy PDFs.
 *.pdf binary
 *.docx binary
