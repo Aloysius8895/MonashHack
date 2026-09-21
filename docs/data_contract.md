@@ -1,5 +1,10 @@
 # Data Contract
 
+The executable source of truth is `src/contracts/schemas.py`. Build payloads
+with those dataclasses rather than hand-writing dictionaries — they validate on
+construction, and `read_handoff` rejects anything that does not match. See
+[architecture.md](architecture.md) for how the stages exchange these records.
+
 ## Required Fields
 
 All modules must use these exact field names:
