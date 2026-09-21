@@ -121,6 +121,7 @@ def run_classification(
             "model_category": model_category,
             "scores": dict(sorted(scores.items())),
             "rules_fired": list(decision.rules_fired),
+            "attachments": list(record["attachments"]),
         }
 
     if len(output_payloads) != len(records):
