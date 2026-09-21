@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import PurePosixPath
 
@@ -40,6 +40,7 @@ def route_prediction(
     predicted_category: str,
     scores: Mapping[str, float],
     review_margin_threshold: float,
+    unavailable_attachments: Sequence[str] = (),
 ) -> RoutingDecision:
     email_id = record.get("email_id")
     if not isinstance(email_id, str):
@@ -48,6 +49,18 @@ def route_prediction(
         raise ValueError(f"Invalid predicted category: {predicted_category}")
     if review_margin_threshold < 0:
         raise ValueError("Review margin threshold cannot be negative")
+    if unavailable_attachments:
+        return RoutingDecision(
+            email_id=email_id,
+            category=predicted_category,
+            route="unusable",
+            status="human_review",
+            reason=(
+                "Attachment cannot be opened: "
+                + ", ".join(sorted(unavailable_attachments))
+            ),
+            rules_fired=("unavailable_attachment",),
+        )
 
     names = _attachment_names(record)
     has_si = any(_SI_PATTERN.search(name) for name in names)
@@ -140,12 +153,13 @@ def _strong_evidence(
     subject = str(record.get("subject", ""))
     body = str(record.get("body", ""))
     text = f"{subject}\n{body}\n{' '.join(names)}"
+    subject_and_names = f"{subject}\n{' '.join(names)}"
     matches = []
     if _SPAM_PATTERN.search(text):
         matches.append(("spam", "spam_evidence"))
-    if _INVOICE_PATTERN.search(text):
+    if _INVOICE_PATTERN.search(subject_and_names):
         matches.append(("invoice_query", "invoice_evidence"))
-    if _NEW_SI_PATTERN.search(text) and not has_bl:
+    if _NEW_SI_PATTERN.search(subject) and not has_bl:
         matches.append(("new_si_request", "new_si_evidence"))
     if has_si and has_bl and _COMPARISON_PATTERN.search(text):
         matches.append(("bl_comparison", "comparison_evidence"))

@@ -53,3 +53,22 @@ Install the reproducible project dependency and generate fold assignments:
 The command writes `data/splits/cv_assignments.csv` and
 `data/splits/cv_folds.json`. It preserves duplicate/template groups within a
 single validation fold and never rewrites `annotations.csv`.
+
+## Train and run email classification
+
+Evaluate Logistic Regression and Linear SVM on the committed folds, select the
+best model, fit it on all legitimate labels, and classify the inbox:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\run_classification.py download2 data\splits\annotations.csv data\splits\cv_assignments.csv outputs artifacts\classification
+```
+
+The selected model and evaluation reports are written under
+`artifacts/classification/`. Every inbox record is written exactly once under
+`outputs/usable/` or `outputs/unusable/`. Only `bl_comparison` records with
+readable SI and BL attachment paths enter `usable`; uncertain, conflicting, or
+incomplete cases carry an explicit `human_review` reason.
+
+The reported five-fold out-of-fold metrics are a development estimate, not an
+independent final-test score. The production model is fitted on all 520 labels
+only after candidate selection.

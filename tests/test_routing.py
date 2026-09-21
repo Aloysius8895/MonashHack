@@ -48,6 +48,24 @@ class RoutingTests(unittest.TestCase):
         self.assertEqual(decision.status, "human_review")
         self.assertIn("BL", decision.reason)
 
+    def test_unreadable_attachment_is_unusable_human_review(self):
+        decision = route_prediction(
+            record(
+                attachments=[
+                    "attachments/email_001_SI.txt",
+                    "attachments/email_001_BL.txt",
+                ]
+            ),
+            "bl_comparison",
+            {"bl_comparison": 3.0, "invoice_query": 0.1},
+            review_margin_threshold=0.5,
+            unavailable_attachments=("attachments/email_001_BL.txt",),
+        )
+
+        self.assertEqual(decision.route, "unusable")
+        self.assertEqual(decision.status, "human_review")
+        self.assertIn("cannot be opened", decision.reason)
+
     def test_low_margin_strong_invoice_rule_can_override(self):
         decision = route_prediction(
             record(subject="Invoice payment query", body="Please check this invoice"),
@@ -71,6 +89,20 @@ class RoutingTests(unittest.TestCase):
         self.assertEqual(decision.category, "general_message")
         self.assertEqual(decision.status, "human_review")
         self.assertEqual(decision.route, "unusable")
+
+    def test_incidental_invoice_in_shipping_body_is_not_strong_evidence(self):
+        decision = route_prediction(
+            record(
+                subject="REQUEST SI for booking",
+                body="Documents required: original invoice and packing list.",
+            ),
+            "new_si_request",
+            {"new_si_request": 4.0, "invoice_query": 0.2},
+            review_margin_threshold=0.5,
+        )
+
+        self.assertEqual(decision.status, "classified")
+        self.assertNotIn("invoice_evidence", decision.rules_fired)
 
     def test_low_margin_without_rule_routes_to_human_review(self):
         decision = route_prediction(
