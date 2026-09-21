@@ -16,6 +16,15 @@ from .splitting import (
     finalize_labeled_split,
     select_annotation_pool,
 )
+from .split_artifacts import (
+    AnnotationSet,
+    ArtifactError,
+    SplitManifest,
+    read_annotations,
+    read_manifest,
+    write_stage_a,
+    write_stage_b,
+)
 
 __all__ = [
     "DatasetSummary",
@@ -32,4 +41,11 @@ __all__ = [
     "build_split_records",
     "finalize_labeled_split",
     "select_annotation_pool",
+    "AnnotationSet",
+    "ArtifactError",
+    "SplitManifest",
+    "read_annotations",
+    "read_manifest",
+    "write_stage_a",
+    "write_stage_b",
 ]
