@@ -269,3 +269,26 @@ def test_bundled_email_001_runs_real_model_extraction_and_comparison():
     assert set(result.submission) == {
         "category", "status", "review_reason", "defect_fields", "has_defect"
     }
+
+
+def test_classify_only_marks_document_steps_skipped():
+    result = analyze_email(fake_runtime("invoice_query"), "Invoice query", "Explain fee", None, None)
+    steps = {item.name: item for item in result.pipeline_steps}
+    assert steps["Classify only"].state == "complete"
+    assert steps["Extraction"].state == "skipped"
+    assert result.confidence.level == "High"
+
+
+def test_high_confidence_mismatch_is_a_final_result():
+    result = analyze_email(fake_runtime("bl_comparison"), "Please verify SI and BL", "Attached for comparison", text_document("SI.txt", container_count="3"), text_document("BL.txt", container_count="4"))
+    steps = {item.name: item for item in result.pipeline_steps}
+    assert result.confidence.level == "High"
+    assert steps["Final result"].state == "complete"
+    assert result.comparison.status == "MISMATCH"
+
+
+def test_unreadable_document_has_low_confidence_reason():
+    result = analyze_email(fake_runtime("bl_comparison"), "Please verify SI and BL", "Attached for comparison", text_document("SI.txt"), UploadedDocument("BL.pdf", b"broken"))
+    assert result.confidence.level == "Low"
+    assert result.confidence.percent < 80
+    assert any("read" in reason.lower() for reason in result.confidence.reasons)
