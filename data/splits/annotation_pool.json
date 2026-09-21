@@ -1,0 +1,608 @@
+{
+  "records": [
+    {
+      "attachment_pattern": "si_bl",
+      "email_id": "email_004",
+      "group_id": "group_9c76ad68aef2"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_006",
+      "group_id": "group_6351582e64d2"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_008",
+      "group_id": "group_78bac84c4c9a"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_011",
+      "group_id": "group_8584710b95f3"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_017",
+      "group_id": "group_3a42b29e228e"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_024",
+      "group_id": "group_b8e7da719fe6"
+    },
+    {
+      "attachment_pattern": "si_bl",
+      "email_id": "email_025",
+      "group_id": "group_6ef16cbf7ad9"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_026",
+      "group_id": "group_c814f189fd0e"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_029",
+      "group_id": "group_175f3b3db640"
+    },
+    {
+      "attachment_pattern": "si_bl",
+      "email_id": "email_032",
+      "group_id": "group_3f8244d1fade"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_035",
+      "group_id": "group_759deac37266"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_037",
+      "group_id": "group_a7eb6696f373"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_039",
+      "group_id": "group_36581e5fa21b"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_045",
+      "group_id": "group_f55234b23622"
+    },
+    {
+      "attachment_pattern": "si_bl",
+      "email_id": "email_046",
+      "group_id": "group_18739f83609c"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_053",
+      "group_id": "group_161dec424fa7"
+    },
+    {
+      "attachment_pattern": "si_bl",
+      "email_id": "email_055",
+      "group_id": "group_5a913621ca28"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_057",
+      "group_id": "group_6cfa3cfc453e"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_060",
+      "group_id": "group_f68a04d9f6fc"
+    },
+    {
+      "attachment_pattern": "si_bl",
+      "email_id": "email_071",
+      "group_id": "group_c80f86042c11"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_081",
+      "group_id": "group_6ee75c26a2a2"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_083",
+      "group_id": "group_bfb829f70767"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_085",
+      "group_id": "group_9e566f5664a8"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_093",
+      "group_id": "group_ae0f8e01f47f"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_095",
+      "group_id": "group_753d02fee4fb"
+    },
+    {
+      "attachment_pattern": "si_bl",
+      "email_id": "email_096",
+      "group_id": "group_f1b818602219"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_100",
+      "group_id": "group_4264ce8ca07a"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_101",
+      "group_id": "group_a3e5d607ee3a"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_103",
+      "group_id": "group_3ca31e5343d0"
+    },
+    {
+      "attachment_pattern": "si_bl",
+      "email_id": "email_107",
+      "group_id": "group_5c0c8c92d2d4"
+    },
+    {
+      "attachment_pattern": "si_bl",
+      "email_id": "email_113",
+      "group_id": "group_456ab34c65a9"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_117",
+      "group_id": "group_b7e13b03cb8c"
+    },
+    {
+      "attachment_pattern": "si_bl",
+      "email_id": "email_118",
+      "group_id": "group_8cb06911040a"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_120",
+      "group_id": "group_1b6d78bfcfa7"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_124",
+      "group_id": "group_7e8340b66e60"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_131",
+      "group_id": "group_d5ada4f1ff4f"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_135",
+      "group_id": "group_1fad79b6f878"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_141",
+      "group_id": "group_0358752b342e"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_158",
+      "group_id": "group_830f5fbbe9db"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_161",
+      "group_id": "group_d7e93a4b209c"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_164",
+      "group_id": "group_2723270b0140"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_166",
+      "group_id": "group_dfff3290e442"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_172",
+      "group_id": "group_4912c56ef5bc"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_185",
+      "group_id": "group_3728d1484b0e"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_190",
+      "group_id": "group_9f9f83331447"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_193",
+      "group_id": "group_1e801c078778"
+    },
+    {
+      "attachment_pattern": "si_bl",
+      "email_id": "email_197",
+      "group_id": "group_50b9ccb7c0af"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_202",
+      "group_id": "group_f2935ea8f1a6"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_207",
+      "group_id": "group_556b9be78dc9"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_210",
+      "group_id": "group_56c0997c8f45"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_212",
+      "group_id": "group_9806f379d5bb"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_217",
+      "group_id": "group_f71bc714e4e6"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_220",
+      "group_id": "group_fb215eaf572c"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_228",
+      "group_id": "group_765808ed37d7"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_229",
+      "group_id": "group_26b99d9574a0"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_230",
+      "group_id": "group_c0729571f9f9"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_232",
+      "group_id": "group_30c005a3bd18"
+    },
+    {
+      "attachment_pattern": "si_bl",
+      "email_id": "email_235",
+      "group_id": "group_8f26cafd6d96"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_236",
+      "group_id": "group_af01cda52ca1"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_237",
+      "group_id": "group_2f521c06a19e"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_240",
+      "group_id": "group_e4a5a565f4fc"
+    },
+    {
+      "attachment_pattern": "si_bl",
+      "email_id": "email_249",
+      "group_id": "group_121d5a51fc09"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_252",
+      "group_id": "group_f1411f84005c"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_258",
+      "group_id": "group_b43b236210d9"
+    },
+    {
+      "attachment_pattern": "si_bl",
+      "email_id": "email_275",
+      "group_id": "group_eddaeb720026"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_276",
+      "group_id": "group_2c71eb291ee2"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_279",
+      "group_id": "group_9be21d51af99"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_282",
+      "group_id": "group_fe9d5873384f"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_283",
+      "group_id": "group_b80da19ced25"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_297",
+      "group_id": "group_f1f50cfd36d2"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_298",
+      "group_id": "group_f4b128ff5dda"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_303",
+      "group_id": "group_b7eaa5766829"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_304",
+      "group_id": "group_788fda5540f7"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_314",
+      "group_id": "group_b42ba2fa20f6"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_321",
+      "group_id": "group_fe5bfdc02843"
+    },
+    {
+      "attachment_pattern": "si_bl",
+      "email_id": "email_324",
+      "group_id": "group_9b2290347ef4"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_325",
+      "group_id": "group_301671700cef"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_326",
+      "group_id": "group_f0be7c778b4a"
+    },
+    {
+      "attachment_pattern": "si_bl",
+      "email_id": "email_334",
+      "group_id": "group_e06d4d7d4790"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_340",
+      "group_id": "group_fdcfa6157c48"
+    },
+    {
+      "attachment_pattern": "si_bl",
+      "email_id": "email_342",
+      "group_id": "group_e540c9db32f7"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_344",
+      "group_id": "group_cefe6cfdc1d8"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_346",
+      "group_id": "group_db36ed6b522d"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_347",
+      "group_id": "group_d6869cb08a52"
+    },
+    {
+      "attachment_pattern": "si_bl",
+      "email_id": "email_351",
+      "group_id": "group_2410cc9822a1"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_352",
+      "group_id": "group_99c1a01b0960"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_357",
+      "group_id": "group_781727e32723"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_360",
+      "group_id": "group_85f99bf1ae9f"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_382",
+      "group_id": "group_c95daea38534"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_386",
+      "group_id": "group_5fbdfb097e9f"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_394",
+      "group_id": "group_439e074add65"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_396",
+      "group_id": "group_9d0f6e1306fb"
+    },
+    {
+      "attachment_pattern": "si_bl",
+      "email_id": "email_409",
+      "group_id": "group_47f7fcdc020a"
+    },
+    {
+      "attachment_pattern": "si_bl",
+      "email_id": "email_411",
+      "group_id": "group_b3ae846571a0"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_412",
+      "group_id": "group_f4106a511a71"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_422",
+      "group_id": "group_69493e21cec3"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_425",
+      "group_id": "group_5340bbc2f3d2"
+    },
+    {
+      "attachment_pattern": "si_bl",
+      "email_id": "email_428",
+      "group_id": "group_7cb8b9e7caad"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_437",
+      "group_id": "group_09ae113379d4"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_439",
+      "group_id": "group_5d322b4fee0d"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_442",
+      "group_id": "group_a853fef801df"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_446",
+      "group_id": "group_515cbf84ea25"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_456",
+      "group_id": "group_65159c82fa19"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_464",
+      "group_id": "group_c8db1fd9220a"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_465",
+      "group_id": "group_447ed7439483"
+    },
+    {
+      "attachment_pattern": "si_bl",
+      "email_id": "email_468",
+      "group_id": "group_90e7ab1d127b"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_472",
+      "group_id": "group_2719c31e0270"
+    },
+    {
+      "attachment_pattern": "si_bl",
+      "email_id": "email_474",
+      "group_id": "group_1ecc103f7f70"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_476",
+      "group_id": "group_47fb5ad7b67e"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_480",
+      "group_id": "group_bed5430e25f2"
+    },
+    {
+      "attachment_pattern": "si_bl",
+      "email_id": "email_483",
+      "group_id": "group_e685717e14bd"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_484",
+      "group_id": "group_a0d111eeaf57"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_490",
+      "group_id": "group_a5a81bb0536a"
+    },
+    {
+      "attachment_pattern": "si_bl",
+      "email_id": "email_491",
+      "group_id": "group_296d632a5698"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_495",
+      "group_id": "group_8a16b5f171b1"
+    },
+    {
+      "attachment_pattern": "none",
+      "email_id": "email_497",
+      "group_id": "group_17a4bec0adde"
+    },
+    {
+      "attachment_pattern": "si_bl",
+      "email_id": "email_498",
+      "group_id": "group_77dc599e2d29"
+    },
+    {
+      "attachment_pattern": "si",
+      "email_id": "email_509",
+      "group_id": "group_4594fbe09129"
+    },
+    {
+      "attachment_pattern": "si_bl",
+      "email_id": "email_512",
+      "group_id": "group_de61629aac18"
+    },
+    {
+      "attachment_pattern": "si_bl",
+      "email_id": "email_519",
+      "group_id": "group_ff2dca911731"
+    }
+  ],
+  "schema_version": 1,
+  "seed": 20260921,
+  "source_id_hash": "32143be480827275d863984b797b93288b092b8be7a869c24e2b65892efa4d8f",
+  "split": "annotation_pool"
+}

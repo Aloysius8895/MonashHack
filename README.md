@@ -27,3 +27,32 @@ Later classification steps will write generated records under
 The internal categories will be `bl_comparison`, `spam`, `general_message`,
 `invoice_query`, and `new_si_request`. The official submission adapter will map
 these values to the competition's required category names.
+
+## Prepare human annotation splits
+
+Create the deterministic 120-email annotation pool and retain the other 400
+emails for production processing:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\prepare_splits.py select download2 data\splits
+```
+
+Fill only the `category` and optional `notes` columns in
+`data/splits/annotations.csv`. Every category must be one of:
+
+- `bl_comparison`
+- `new_si_request`
+- `invoice_query`
+- `general_message`
+- `spam`
+
+After all 120 rows have been reviewed by a human, create the 80-email
+development set and locked 40-email final test set:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\prepare_splits.py finalize data\splits
+```
+
+Do not use IDs or labels from `final_test.json` to adjust classification rules,
+LLM prompts, confidence thresholds, or review logic. Keep the original inbox
+and generated split manifests unchanged while annotation is in progress.
