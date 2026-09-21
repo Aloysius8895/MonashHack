@@ -201,4 +201,3 @@ with st.expander("Technical details"):
         selected_id = st.selectbox("Email", [item.email_id for item in records], key="technical_email")
         selected_record = next(item for item in records if item.email_id == selected_id)
         st.json({"scores": selected_record.automated.scores, "confidence": selected_record.automated.confidence.percent, "submission": selected_record.automated.submission})
-    st.caption("JEV is not used in this prototype. It is a future enhancement for unfamiliar or low-confidence emails.")
