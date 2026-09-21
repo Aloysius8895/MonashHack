@@ -6,260 +6,209 @@ from pathlib import Path
 
 import streamlit as st
 
+ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT / "src")) if str(ROOT / "src") not in sys.path else None
 
-PROJECT_ROOT = Path(__file__).resolve().parent
-SRC_ROOT = PROJECT_ROOT / "src"
-if str(SRC_ROOT) not in sys.path:
-    sys.path.insert(0, str(SRC_ROOT))
-
-from frontend.service import (
-    DemoConfigurationError,
-    UploadedDocument,
-    analyze_email,
-    load_demo_runtime,
-)
+from frontend.inbox import InboxRecord, ResolvedDocuments, index_attachments, parse_inbox_uploads, resolve_record_documents  # noqa: E402
+from frontend.reporting import dashboard_summary, report_csv, submission_json  # noqa: E402
+from frontend.review import FieldDecision, apply_review, pending_reviews, replace_after_rerun  # noqa: E402
+from frontend.service import UploadedDocument, load_demo_runtime  # noqa: E402
+from frontend.workbench import build_demo_scenarios, process_record, process_scenario, upsert_records  # noqa: E402
 
 
-st.set_page_config(
-    page_title="Shipping Document Verification",
-    page_icon="🚢",
-    layout="wide",
-)
-
-st.markdown(
-    """
-    <style>
-    .block-container {max-width: 1180px; padding-top: 2rem;}
-    [data-testid="stMetric"] {border: 1px solid #dbe4ed; border-radius: 12px; padding: 14px;}
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+st.set_page_config(page_title="Shipping Operations Workbench", page_icon="🚢", layout="wide", initial_sidebar_state="collapsed")
+st.markdown("""
+<style>
+.block-container{max-width:1200px;padding-top:1.6rem}.stMetric{background:#f7f9fc;border:1px solid #e1e7ef;border-radius:12px;padding:12px}
+.step-done{border-left:4px solid #16835b;padding:.35rem .8rem;margin:.25rem 0}.step-skip{border-left:4px solid #c7ced8;color:#7b8491;padding:.35rem .8rem;margin:.25rem 0}.step-warn{border-left:4px solid #d58a00;padding:.35rem .8rem;margin:.25rem 0}
+</style>""", unsafe_allow_html=True)
 
 
 @st.cache_resource
-def runtime():
-    return load_demo_runtime(PROJECT_ROOT)
+def runtime(): return load_demo_runtime(ROOT)
 
 
-def bundled_inputs():
-    record = json.loads(
-        (PROJECT_ROOT / "download2/inbox/email_001.json").read_text(encoding="utf-8")
-    )
-    si_path = PROJECT_ROOT / "download2" / record["attachments"][0]
-    bl_path = PROJECT_ROOT / "download2" / record["attachments"][1]
-    return (
-        record,
-        UploadedDocument(si_path.name, si_path.read_bytes()),
-        UploadedDocument(bl_path.name, bl_path.read_bytes()),
-    )
+def init_state():
+    st.session_state.setdefault("processed_emails", ())
+    st.session_state.setdefault("processing_issues", ())
+    st.session_state.setdefault("latest_email_id", None)
+    st.session_state.setdefault("confidence_threshold", 80)
 
 
-st.title("Shipping Document Verification")
-st.write(
-    "Classify an incoming shipping email, extract seven canonical SI and draft BL "
-    "fields, and route uncertain evidence to human review."
-)
-st.caption("AI pipeline  ·  Document extraction  ·  Deterministic verification  ·  Human review")
+def store(items):
+    st.session_state.processed_emails = upsert_records(st.session_state.processed_emails, items)
+    if items: st.session_state.latest_email_id = items[-1].email_id
 
-with st.container(border=True):
-    st.subheader("1 · Email and attachments")
-    mode = st.radio(
-        "Input mode",
-        ("Bundled example", "Manual input"),
-        horizontal=True,
-        help="The bundled example runs email_001 and its real participant documents.",
-    )
 
-    if mode == "Bundled example":
-        record, si_document, bl_document = bundled_inputs()
-        subject = st.text_input("Email subject", value=record["subject"])
-        body = st.text_area("Email body", value=record["body"], height=210)
-        cols = st.columns(2)
-        cols[0].text_input("Shipping Instruction", value=si_document.name, disabled=True)
-        cols[1].text_input("Draft Bill of Lading", value=bl_document.name, disabled=True)
-        email_id = record["email_id"]
+def badge(item):
+    if item.automated.category != "BL_COMPARISON":
+        st.info("**CLASSIFIED ONLY**  \nClassified only, no action needed."); return
+    if item.final_status == "NEEDS_REVIEW":
+        reason = item.automated.comparison.review_reason if item.automated.comparison else "uncertain classification"
+        st.warning(f"**HUMAN REVIEW**  \n{next_step(item)} ({reason})"); return
+    if item.final_status == "MISMATCH":
+        st.error(f"**ACTION REQUIRED – {len(item.final_defect_fields)} mismatch(es)**  \n{next_step(item)}"); return
+    st.success("**NO MISMATCH DETECTED**  \nDraft BL matches the SI. Safe to finalise.")
+
+
+def next_step(item):
+    if item.automated.category != "BL_COMPARISON": return "No action needed."
+    reason = item.automated.comparison.review_reason if item.automated.comparison else None
+    if reason == "missing_attachment": return "BL attachment is missing. Ask the sender to resend it."
+    if reason == "unreadable": return "An attachment cannot be read. Check the file manually or request a new copy."
+    if reason == "missing_value": return "Required shipping information is missing. Complete it before approval."
+    if reason == "wrong_doc_type": return "Replace the incorrect attachment with the SI or draft BL."
+    if item.final_status == "MISMATCH":
+        rows = item.automated.comparison.fields if item.automated.comparison else ()
+        details = []
+        for field in item.final_defect_fields:
+            row = next((value for value in rows if value.field == field), None)
+            label = field.replace("_", " ").title()
+            details.append(f"{label} (SI: {row.si_value}, BL: {row.bl_value})" if row else label)
+        return "Ask the carrier to correct " + "; ".join(details) + "."
+    return "Draft BL matches the SI. Safe to finalise."
+
+
+def field_rows(item):
+    comparison = item.automated.comparison
+    if comparison is None: return []
+    labels = {"OK": "Match", "MISMATCH": "Mismatch", "NEEDS_REVIEW": "Review"}
+    return [{"Field": row.field.replace("_", " ").title(), "SI value": str(row.si_value) if row.si_value is not None else "—", "BL value": str(row.bl_value) if row.bl_value is not None else "—", "Result": labels[row.status]} for row in comparison.fields]
+
+
+def render_pipeline(item):
+    st.markdown("**Route taken**")
+    route = "Inbox → Classifier → " + ("Classify only → Report → Dashboard" if item.automated.category != "BL_COMPARISON" else "Attachment check → Extraction → Clean values → Comparison → Confidence → " + ("Human review" if item.final_status == "NEEDS_REVIEW" else "Final result") + " → Report → Dashboard")
+    st.caption(route)
+    st.markdown("#### Pipeline steps")
+    for step in item.automated.pipeline_steps:
+        css = "step-done" if step.state == "complete" else "step-warn" if step.state == "attention" else "step-skip"
+        icon = "✓" if step.state == "complete" else "!" if step.state == "attention" else "–"
+        st.markdown(f'<div class="{css}"><b>{icon} {step.name}</b> — {step.summary}</div>', unsafe_allow_html=True)
+
+
+init_state()
+records = st.session_state.processed_emails
+pending = pending_reviews(records)
+st.title("Shipping Operations Workbench")
+st.write("Process shipping emails, review exceptions, and see the next action at a glance.")
+input_tab, review_tab, report_tab, dashboard_tab = st.tabs(["Input & Run", f"Human Review ({len(pending)})", "Report", "Dashboard"])
+
+with input_tab:
+    st.subheader("Process your inbox")
+    left, right = st.columns(2)
+    inbox_files = left.file_uploader("Inbox JSON files", type="json", accept_multiple_files=True, key="inbox_uploads")
+    attachment_files = right.file_uploader("SI and draft BL attachments", type=("txt", "pdf", "docx", "xlsx"), accept_multiple_files=True, key="attachment_uploads")
+    if st.button("Run uploaded inbox", type="primary", key="run_uploaded", disabled=not inbox_files):
+        json_uploads = [UploadedDocument(file.name, file.getvalue()) for file in inbox_files]
+        uploads = [UploadedDocument(file.name, file.getvalue()) for file in attachment_files]
+        inbox_records, parse_issues = parse_inbox_uploads(json_uploads)
+        attachment_index, attachment_issues = index_attachments(uploads)
+        completed = [process_record(runtime(), record, resolve_record_documents(record, attachment_index)) for record in inbox_records]
+        store(completed); st.session_state.processing_issues = parse_issues + attachment_issues; st.rerun()
+
+    st.divider(); st.subheader("Prepared demo")
+    scenarios = build_demo_scenarios(ROOT)
+    selected = st.selectbox("Choose a demo scenario", [item.name for item in scenarios], key="demo_scenario")
+    demo_cols = st.columns(2)
+    if demo_cols[0].button("Run selected scenario", key="run_selected_demo", width="stretch"):
+        scenario = next(item for item in scenarios if item.name == selected)
+        store((process_scenario(runtime(), scenario),)); st.rerun()
+    if demo_cols[1].button("Run all demo scenarios", key="run_all_demos", width="stretch"):
+        store(tuple(process_scenario(runtime(), item) for item in scenarios)); st.rerun()
+
+    with st.expander("Manual email entry"):
+        subject = st.text_input("Email subject", key="manual_subject")
+        body = st.text_area("Email body", key="manual_body")
+        manual_cols = st.columns(2)
+        manual_si = manual_cols[0].file_uploader("Shipping Instruction", type=("txt", "pdf", "docx", "xlsx"), key="manual_si")
+        manual_bl = manual_cols[1].file_uploader("Draft Bill of Lading", type=("txt", "pdf", "docx", "xlsx"), key="manual_bl")
+        if st.button("Run manual email", key="run_manual"):
+            source = InboxRecord("manual_email", "", subject, body, tuple(filter(None, [manual_si.name if manual_si else None, manual_bl.name if manual_bl else None])))
+            documents = ResolvedDocuments(UploadedDocument(manual_si.name, manual_si.getvalue()) if manual_si else None, UploadedDocument(manual_bl.name, manual_bl.getvalue()) if manual_bl else None, ())
+            store((process_record(runtime(), source, documents),)); st.rerun()
+    if st.session_state.processing_issues:
+        for issue in st.session_state.processing_issues: st.error(f"{issue.location}: {issue.message}")
+    latest = next((item for item in st.session_state.processed_emails if item.email_id == st.session_state.latest_email_id), None)
+    if latest: st.divider(); badge(latest); render_pipeline(latest)
+
+with review_tab:
+    st.subheader("Cases waiting for a person")
+    if not pending: st.success("No cases are waiting for review.")
+    for item in pending:
+        with st.container(border=True):
+            st.markdown(f"### {item.email_id}"); st.warning(next_step(item))
+            rows = field_rows(item)
+            if rows: st.dataframe([row for row in rows if row["Result"] == "Review"] or rows, hide_index=True, width="stretch")
+            decisions = []
+            if item.automated.comparison and item.automated.comparison.fields:
+                for row in item.automated.comparison.fields:
+                    if row.status == "OK": continue
+                    with st.expander(f"Review {row.field.replace('_', ' ').title()}"):
+                        evidence = st.columns(2)
+                        evidence[0].write(f"**SI raw text**  \n{row.si_evidence.raw_value or 'Not available'}")
+                        evidence[1].write(f"**BL raw text**  \n{row.bl_evidence.raw_value or 'Not available'}")
+                        choice = st.radio("Choose the trusted value", ("SI is correct", "BL is correct", "Enter value"), key=f"choice_{item.email_id}_{row.field}", horizontal=True)
+                        entered = st.text_input("Correct value", key=f"entered_{item.email_id}_{row.field}", disabled=choice != "Enter value")
+                        decisions.append(FieldDecision(row.field, {"SI is correct": "si", "BL is correct": "bl", "Enter value": "entered"}[choice], entered or None))
+            reason = item.automated.comparison.review_reason if item.automated.comparison else None
+            if reason == "missing_attachment":
+                replacement = st.file_uploader("Upload the missing attachment", type=("txt", "pdf", "docx", "xlsx"), key=f"replacement_{item.email_id}")
+                if st.button("Re-run", key=f"rerun_{item.email_id}", disabled=replacement is None):
+                    uploaded = UploadedDocument(replacement.name, replacement.getvalue())
+                    documents = ResolvedDocuments(item.documents.si_document or uploaded, item.documents.bl_document or uploaded, ())
+                    rerun = process_record(runtime(), item.source, documents)
+                    st.session_state.processed_emails = replace_after_rerun(records, rerun); st.rerun()
+            buttons = st.columns(2)
+            if buttons[0].button("Approve – no mismatch", key=f"approve_{item.email_id}"):
+                updated = apply_review(item, "approve", ())
+                st.session_state.processed_emails = upsert_records(records, (updated,)); st.rerun()
+            if buttons[1].button("Confirm mismatch", key=f"mismatch_{item.email_id}"):
+                if not decisions: decisions = [FieldDecision("consignee", "si", None)]
+                updated = apply_review(item, "mismatch", decisions)
+                st.session_state.processed_emails = upsert_records(records, (updated,)); st.rerun()
+
+with report_tab:
+    st.subheader("Operations report")
+    if not records: st.info("Run an inbox or demo scenario to create a report.")
     else:
-        email_id = "demo_email"
-        subject = st.text_input("Email subject", placeholder="e.g. Please verify SI and draft BL")
-        body = st.text_area("Email body", height=210, placeholder="Paste the incoming email body")
-        cols = st.columns(2)
-        si_upload = cols[0].file_uploader(
-            "Shipping Instruction",
-            type=("txt", "pdf", "docx", "xlsx"),
-            key="si_upload",
-        )
-        bl_upload = cols[1].file_uploader(
-            "Draft Bill of Lading",
-            type=("txt", "pdf", "docx", "xlsx"),
-            key="bl_upload",
-        )
-        si_document = (
-            UploadedDocument(si_upload.name, si_upload.getvalue()) if si_upload else None
-        )
-        bl_document = (
-            UploadedDocument(bl_upload.name, bl_upload.getvalue()) if bl_upload else None
-        )
-        st.caption("Supported attachments: TXT, PDF, DOCX and XLSX. Files are processed in memory.")
+        download_cols = st.columns(2)
+        download_cols[0].download_button("Download report (CSV)", report_csv(records), "shipping_report.csv", "text/csv")
+        download_cols[1].download_button("Download submission.json", submission_json(records), "submission.json", "application/json")
+        for item in records:
+            with st.container(border=True):
+                st.markdown(f"### {item.email_id} · {item.automated.category.replace('_', ' ').title()}")
+                badge(item); st.write(f"**Next step:** {next_step(item)}")
+                if item.reviewed_by_human: st.caption("Reviewed by human")
+                rows = field_rows(item)
+                if rows: st.dataframe(rows, hide_index=True, width="stretch")
+                if item.automated.comparison and item.automated.comparison.fields:
+                    with st.expander("Cleaned values and source evidence"):
+                        for row in item.automated.comparison.fields:
+                            st.markdown(f"**{row.field.replace('_', ' ').title()}** — Cleaned SI: `{row.normalized_si}` · Cleaned BL: `{row.normalized_bl}`")
+                            st.caption(f"SI source: {row.si_evidence.raw_value} ({row.si_evidence.location}) | BL source: {row.bl_evidence.raw_value} ({row.bl_evidence.location})")
 
-    analyze = st.button("Analyze email", type="primary", key="analyze", width="stretch")
+with dashboard_tab:
+    st.subheader("Session dashboard")
+    summary = dashboard_summary(records)
+    labels = [("Emails processed", summary.emails_processed), ("Comparison requests", summary.comparison_requests), ("No mismatch", summary.no_mismatch), ("Mismatch found", summary.mismatch_found), ("Waiting for human review", summary.waiting_for_human_review), ("Resolved by human", summary.resolved_by_human)]
+    for column, (label, value) in zip(st.columns(6), labels): column.metric(label, value)
+    if records:
+        charts = st.columns(3)
+        charts[0].write("**Emails by category**"); charts[0].bar_chart(summary.categories)
+        charts[1].write("**Outcomes**"); charts[1].bar_chart(summary.outcomes)
+        charts[2].write("**Frequently mismatched fields**"); charts[2].bar_chart(summary.mismatched_fields or {"None": 0})
+        st.write("**Needs action**")
+        action_rows = [{"Email": item.email_id, "Status": item.final_status, "Next step": next_step(item)} for item in records if item.final_status != "OK"]
+        status_filter = st.selectbox("Status filter", ["All", "NEEDS_REVIEW", "MISMATCH"], key="status_filter")
+        if status_filter != "All": action_rows = [row for row in action_rows if row["Status"] == status_filter]
+        st.dataframe(action_rows, hide_index=True, width="stretch")
 
-st.subheader("How the current prototype uses AI")
-st.write(
-    "The email category comes from the repository's trained TF-IDF and scikit-learn "
-    "classifier, followed by deterministic routing rules. Extraction and SI/BL comparison "
-    "are deterministic in this public demo configuration."
-)
-st.caption(
-    "JEV is not used in the current prototype. It is a future enhancement for unfamiliar "
-    "wording or low-confidence classifications."
-)
-
-if analyze:
-    try:
-        result = analyze_email(
-            runtime(),
-            subject,
-            body,
-            si_document,
-            bl_document,
-            email_id=email_id,
-        )
-    except DemoConfigurationError as error:
-        st.error(str(error))
-    else:
-        st.divider()
-        st.subheader("2 · Classification")
-        category_labels = {
-            "BL_COMPARISON": "BL Comparison",
-            "SI_REQUEST": "SI Request",
-            "INVOICE_QUERY": "Invoice Query",
-            "GENERAL": "General",
-            "SPAM": "Spam",
-        }
-        classification_cols = st.columns((1, 1, 2))
-        classification_cols[0].metric(
-            "Email category", category_labels[result.category]
-        )
-        classification_cols[1].metric(
-            "Route",
-            (
-                "Verify documents"
-                if result.comparison is not None
-                else "Human review"
-                if result.routing_status == "human_review"
-                else "No comparison"
-            ),
-        )
-        classification_cols[2].write("**Routing decision**")
-        classification_cols[2].write(result.routing_reason)
-        if result.rules_fired:
-            classification_cols[2].caption(
-                "Rules: " + ", ".join(result.rules_fired)
-            )
-
-        score_rows = [
-            {"Category": category_labels[name], "Model score": score}
-            for name, score in sorted(
-                result.scores.items(), key=lambda item: item[1], reverse=True
-            )
-        ]
-        with st.expander("View all five model scores"):
-            st.bar_chart(
-                {row["Category"]: row["Model score"] for row in score_rows},
-                horizontal=True,
-            )
-
-        if result.comparison is None:
-            st.info(
-                "This category does not enter SI / draft BL verification. "
-                "The workflow ends after classification."
-            )
-        elif not result.comparison.fields:
-            st.subheader("3 · Document verification")
-            st.warning(
-                "Pending human review: both an SI and a draft BL are required."
-            )
-        else:
-            st.subheader("3 · Document verification")
-            status_labels = {
-                "OK": "Match",
-                "MISMATCH": "Mismatch detected",
-                "NEEDS_REVIEW": "Pending human review",
-            }
-            fields = result.comparison.fields
-            counts = {
-                "OK": sum(row.status == "OK" for row in fields),
-                "MISMATCH": sum(row.status == "MISMATCH" for row in fields),
-                "NEEDS_REVIEW": sum(row.status == "NEEDS_REVIEW" for row in fields),
-            }
-            result_cols = st.columns(4)
-            result_cols[0].metric(
-                "Verification status", status_labels[result.comparison.status]
-            )
-            result_cols[1].metric("Matched fields", counts["OK"])
-            result_cols[2].metric("Mismatched fields", counts["MISMATCH"])
-            result_cols[3].metric("Review fields", counts["NEEDS_REVIEW"])
-            if result.comparison.review_reason:
-                st.warning(
-                    "Human review reason: " + result.comparison.review_reason
-                )
-
-            comparison_rows = [
-                {
-                    "Field": row.field.replace("_", " ").title(),
-                    "SI value": "—" if row.si_value is None else str(row.si_value),
-                    "Draft BL value": "—" if row.bl_value is None else str(row.bl_value),
-                    "Normalized SI": "—" if row.normalized_si is None else str(row.normalized_si),
-                    "Normalized BL": "—" if row.normalized_bl is None else str(row.normalized_bl),
-                    "Status": status_labels[row.status],
-                    "Reason": row.reason,
-                }
-                for row in fields
-            ]
-            st.dataframe(
-                comparison_rows,
-                hide_index=True,
-                width="stretch",
-                column_config={
-                    "Status": st.column_config.TextColumn("Status", width="medium"),
-                    "Reason": st.column_config.TextColumn("Reason", width="large"),
-                },
-            )
-
-            st.markdown("#### Traceable evidence")
-            st.caption(
-                "Raw labels, values and source locations are preserved separately from normalized comparison values."
-            )
-            for row in fields:
-                with st.expander(
-                    f"{row.field.replace('_', ' ').title()} · {status_labels[row.status]}"
-                ):
-                    evidence_cols = st.columns(2)
-                    for column, evidence in zip(
-                        evidence_cols,
-                        (row.si_evidence, row.bl_evidence),
-                        strict=True,
-                    ):
-                        column.write(f"**{evidence.document_role} · {evidence.filename}**")
-                        column.json(
-                            {
-                                "raw_label": evidence.raw_label,
-                                "raw_value": evidence.raw_value,
-                                "evidence_location": evidence.location,
-                                "ocr_used": evidence.ocr_used,
-                                "llm_fallback_used": evidence.llm_used,
-                                "garbled": evidence.garbled,
-                            }
-                        )
-
-        st.subheader("4 · Organizer-format result")
-        if result.submission is None:
-            st.warning(
-                "No organizer result is claimed until a person confirms this uncertain email category."
-            )
-        else:
-            st.caption(
-                "This JSON contains only the five properties accepted by the organizer submission contract."
-            )
-            st.json(result.submission)
+with st.expander("Technical details"):
+    st.slider("High-confidence display threshold", 50, 95, key="confidence_threshold")
+    st.caption("Model: committed TF-IDF + scikit-learn classifier. Scores and the automated organizer output are shown below.")
+    if records:
+        selected_id = st.selectbox("Email", [item.email_id for item in records], key="technical_email")
+        selected_record = next(item for item in records if item.email_id == selected_id)
+        st.json({"scores": selected_record.automated.scores, "confidence": selected_record.automated.confidence.percent, "submission": selected_record.automated.submission})
+    st.caption("JEV is not used in this prototype. It is a future enhancement for unfamiliar or low-confidence emails.")

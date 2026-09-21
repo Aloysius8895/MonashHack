@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import joblib
 
@@ -73,6 +73,20 @@ class ComparisonView:
 
 
 @dataclass(frozen=True)
+class PipelineStep:
+    name: str
+    state: Literal["complete", "attention", "skipped"]
+    summary: str
+
+
+@dataclass(frozen=True)
+class ConfidenceView:
+    percent: int
+    level: Literal["High", "Low"]
+    reasons: tuple[str, ...]
+
+
+@dataclass(frozen=True)
 class DemoResult:
     email_id: str
     category: str
@@ -83,6 +97,8 @@ class DemoResult:
     rules_fired: tuple[str, ...]
     comparison: ComparisonView | None
     submission: dict[str, object] | None
+    pipeline_steps: tuple[PipelineStep, ...]
+    confidence: ConfidenceView
 
 
 def load_demo_runtime(project_root: str | Path) -> DemoRuntime:
@@ -143,6 +159,7 @@ def analyze_email(
             comparison, submission = _analyze_documents(
                 public_category, si_document, bl_document
             )
+    confidence = _confidence(scores, runtime.review_margin_threshold, decision.status, comparison)
     return DemoResult(
         email_id=email_id,
         category=public_category,
@@ -153,6 +170,54 @@ def analyze_email(
         rules_fired=decision.rules_fired,
         comparison=comparison,
         submission=submission,
+        pipeline_steps=_pipeline_steps(public_category, comparison, confidence),
+        confidence=confidence,
+    )
+
+
+def _score_margin(scores: dict[str, float]) -> float:
+    values = sorted(scores.values(), reverse=True)
+    return values[0] - values[1] if len(values) > 1 else 0.0
+
+
+def _confidence(scores, trained_threshold, routing_status, comparison):
+    margin = _score_margin(scores)
+    if routing_status == "human_review" and comparison is None:
+        return ConfidenceView(45, "Low", ("The email category is not clear enough for automatic processing.",))
+    if comparison is not None and comparison.status == "NEEDS_REVIEW":
+        reason = comparison.review_reason
+        wording = {
+            "missing_attachment": "A required SI or draft BL attachment is missing.",
+            "wrong_doc_type": "An attachment is not an SI or draft BL.",
+            "unreadable": "A required attachment could not be read reliably.",
+            "missing_value": "One or more required shipping values could not be read.",
+        }.get(reason, "The available evidence is incomplete.")
+        completeness = len(comparison.fields) / 7 if comparison.fields else 0
+        return ConfidenceView(min(79, round(40 + completeness * 30)), "Low", (wording,))
+    ratio = margin / max(trained_threshold, 0.000001)
+    return ConfidenceView(min(99, round(80 + min(ratio, 4) * 4.75)), "High", ("The classification and available evidence are complete.",))
+
+
+def _pipeline_steps(category, comparison, confidence):
+    comparison_request = category == "BL_COMPARISON"
+    has_documents = comparison is not None and bool(comparison.fields)
+    needs_review = comparison_request and (comparison is None or comparison.status == "NEEDS_REVIEW" or confidence.level == "Low")
+    definite = comparison_request and has_documents and not needs_review
+    state = lambda condition: "complete" if condition else "skipped"
+    return (
+        PipelineStep("Inbox", "complete", "Email received and validated."),
+        PipelineStep("Classifier", "complete", "Document comparison request." if comparison_request else "No document comparison requested."),
+        PipelineStep("Document comparison request?", "complete", "Yes" if comparison_request else "No"),
+        PipelineStep("Classify only", state(not comparison_request), "Category recorded; no comparison needed." if not comparison_request else "Not used."),
+        PipelineStep("Attachment check", "attention" if comparison_request and not has_documents else state(comparison_request), "SI and draft BL found." if has_documents else "Required attachment unavailable."),
+        PipelineStep("Extraction", state(has_documents), "Required values read from both documents." if has_documents else "Skipped."),
+        PipelineStep("Normalization", state(has_documents), "Values cleaned into comparable formats." if has_documents else "Skipped."),
+        PipelineStep("Comparison", state(has_documents), "Seven fields compared." if has_documents else "Skipped."),
+        PipelineStep("Confidence check", state(has_documents), f"{confidence.level}, {confidence.percent}%." if has_documents else "Skipped."),
+        PipelineStep("Human review", state(needs_review), confidence.reasons[0] if needs_review else "Not required."),
+        PipelineStep("Final result", state(definite), "Automatic result is ready." if definite else "Not available."),
+        PipelineStep("Report", "complete", "Added to the report."),
+        PipelineStep("Dashboard", "complete", "Included in the session dashboard."),
     )
 
 

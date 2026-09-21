@@ -4,16 +4,16 @@ Email classification and shipping-document verification project.
 
 ## Interactive frontend demo
 
-The Streamlit frontend is a semi-working prototype, not a static mockup. It
-uses the committed classifier, the real multi-format document extractors, and
-the deterministic seven-field SI-to-draft-BL comparator. It supports editable
-email content, explicit SI and draft BL uploads, all five official categories,
-normalized comparison, human-review routing, traceable evidence, and a strict
-organizer-format JSON result. Supported uploads are TXT, PDF, DOCX, and XLSX.
+The Streamlit frontend is a semi-working shipping operations workbench, not a
+static mockup. It calls the committed trained classifier, real multi-format
+document extractors, and deterministic seven-field SI-to-draft-BL comparator.
+Users can upload one or more inbox JSON files and their TXT, PDF, DOCX, or XLSX
+attachments; files are matched by basename and processed in memory.
 
-The default bundled example uses the real `email_001` record and attachments
-from `download2`, so a complete path can be demonstrated without preparing
-files.
+Four tabs keep the workflow simple: **Input & Run**, **Human Review**,
+**Report**, and **Dashboard**. Five prepared scenarios exercise every route
+without setup and use real bundle records/documents rather than hard-coded
+results.
 
 ### Run locally on macOS or Linux
 
@@ -31,8 +31,8 @@ py -3.12 -m venv .venv
 .\.venv\Scripts\streamlit.exe run streamlit_app.py
 ```
 
-Open the local URL printed by Streamlit. Choose **Bundled example** and click
-**Analyze email** for the shortest verified path.
+Open the local URL printed by Streamlit and click **Run all demo scenarios**
+for the shortest complete demonstration.
 
 ### Deploy on Streamlit Community Cloud
 
@@ -44,7 +44,7 @@ Open the local URL printed by Streamlit. Choose **Bundled example** and click
    `streamlit_app.py`.
 4. Deploy. The committed `requirements.txt`, model artifact, participant demo
    data, and `.streamlit/config.toml` are sufficient; no secret is required.
-5. Open the generated public URL and run the bundled example once before
+5. Open the generated public URL and run all demo scenarios once before
    recording or submitting it.
 
 The repository makes the app deployable but does not create a public URL by
@@ -52,26 +52,27 @@ itself. The repository owner must complete the Community Cloud connection.
 
 ### Five-minute demonstration sequence
 
-1. Open the app with **Bundled example** selected.
-2. Point out the editable subject/body and the real SI and draft BL filenames.
-3. Click **Analyze email**.
-4. Explain that the trained classifier selected **BL Comparison**, then show
-   the routing reason and the five model scores.
-5. Show the overall verification status and scan the seven-field table.
-6. Use gross weight to explain normalized equality, or use a mismatched row to
-   explain deterministic defect detection.
-7. Expand one item under **Traceable evidence** and show its raw label, raw
-   value, and source location.
-8. Show the organizer-format JSON and its five exact properties.
-9. Finish at the disclosure explaining that JEV is a future enhancement and is
-   not used by this prototype.
+1. In **Input & Run**, click **Run all demo scenarios**.
+2. Show the compact route and plain-English pipeline steps for the latest email.
+3. Open **Human Review (2)** and resolve one exception with **Approve – no
+   mismatch** or **Confirm mismatch**.
+4. Open **Report** and show the four plain-English outcomes, the seven-field
+   comparison table, and one cleaned-value/source-evidence expander.
+5. Download **shipping_report.csv** and **submission.json**.
+6. Open **Dashboard** and point out the six KPIs, three summary charts, and the
+   Needs action table.
+7. Return to **Input & Run** and select individual scenarios if the judges want
+   to inspect Match, Mismatch, Missing BL, Human Review, or Classify-only paths.
+8. Expand **Technical details** last: show the automated output and explain that
+   JEV is a future enhancement and is not used by this prototype.
 
 ### Current AI and known limitations
 
-The email classifier uses TF-IDF text features with the selected committed
-scikit-learn model and deterministic routing rules. JEV is **not** used in the
-current prototype; it is a future fallback or second-opinion enhancement for
-unfamiliar or low-confidence emails.
+The AI component uses TF-IDF text features with the selected committed
+scikit-learn classifier, followed by real document extraction and deterministic
+comparison. Streamlit Community Cloud supplies the public cloud infrastructure.
+JEV is **not** used in the current prototype; it is a future fallback or
+second-opinion enhancement for unfamiliar or low-confidence emails.
 
 The public demo disables the optional local Ollama extraction fallback for
 reproducibility. Text-based PDF, DOCX, XLSX, and TXT extraction works through
