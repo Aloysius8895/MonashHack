@@ -28,31 +28,28 @@ The internal categories will be `bl_comparison`, `spam`, `general_message`,
 `invoice_query`, and `new_si_request`. The official submission adapter will map
 these values to the competition's required category names.
 
-## Prepare human annotation splits
+## Prepare cross-validation folds
 
-Create the deterministic 120-email annotation pool and retain the other 400
-emails for production processing:
+The earlier 120/400 annotation split and 80/40 development/test split are kept
+only as audit history. They are superseded by deterministic, group-aware,
+stratified five-fold cross-validation over all 520 human-labeled emails.
 
-```powershell
-.\.venv\Scripts\python.exe scripts\prepare_splits.py select download2 data\splits
-```
+`data/splits/annotations.csv` must contain exactly one complete row for every
+inbox email. Human category values are:
 
-Fill only the `category` and optional `notes` columns in
-`data/splits/annotations.csv`. Every category must be one of:
+- `Document Comparison`
+- `New SI Request`
+- `Invoice Query`
+- `General Message`
+- `Spam`
 
-- `bl_comparison`
-- `new_si_request`
-- `invoice_query`
-- `general_message`
-- `spam`
-
-After all 120 rows have been reviewed by a human, create the 80-email
-development set and locked 40-email final test set:
+Install the reproducible project dependency and generate fold assignments:
 
 ```powershell
-.\.venv\Scripts\python.exe scripts\prepare_splits.py finalize data\splits
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe scripts\prepare_splits.py cross-validate download2 data\splits\annotations.csv data\splits
 ```
 
-Do not use IDs or labels from `final_test.json` to adjust classification rules,
-LLM prompts, confidence thresholds, or review logic. Keep the original inbox
-and generated split manifests unchanged while annotation is in progress.
+The command writes `data/splits/cv_assignments.csv` and
+`data/splits/cv_folds.json`. It preserves duplicate/template groups within a
+single validation fold and never rewrites `annotations.csv`.

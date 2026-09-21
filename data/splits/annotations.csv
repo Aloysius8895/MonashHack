@@ -1,121 +1,521 @@
 email_id,category,notes
-email_004,,
-email_006,,
-email_008,,
-email_011,,
-email_017,,
-email_024,,
-email_025,,
-email_026,,
-email_029,,
-email_032,,
-email_035,,
-email_037,,
-email_039,,
-email_045,,
-email_046,,
-email_053,,
-email_055,,
-email_057,,
-email_060,,
-email_071,,
-email_081,,
-email_083,,
-email_085,,
-email_093,,
-email_095,,
-email_096,,
-email_100,,
-email_101,,
-email_103,,
-email_107,,
-email_113,,
-email_117,,
-email_118,,
-email_120,,
-email_124,,
-email_131,,
-email_135,,
-email_141,,
-email_158,,
-email_161,,
-email_164,,
-email_166,,
-email_172,,
-email_185,,
-email_190,,
-email_193,,
-email_197,,
-email_202,,
-email_207,,
-email_210,,
-email_212,,
-email_217,,
-email_220,,
-email_228,,
-email_229,,
-email_230,,
-email_232,,
-email_235,,
-email_236,,
-email_237,,
-email_240,,
-email_249,,
-email_252,,
-email_258,,
-email_275,,
-email_276,,
-email_279,,
-email_282,,
-email_283,,
-email_297,,
-email_298,,
-email_303,,
-email_304,,
-email_314,,
-email_321,,
-email_324,,
-email_325,,
-email_326,,
-email_334,,
-email_340,,
-email_342,,
-email_344,,
-email_346,,
-email_347,,
-email_351,,
-email_352,,
-email_357,,
-email_360,,
-email_382,,
-email_386,,
-email_394,,
-email_396,,
-email_409,,
-email_411,,
-email_412,,
-email_422,,
-email_425,,
-email_428,,
-email_437,,
-email_439,,
-email_442,,
-email_446,,
-email_456,,
-email_464,,
-email_465,,
-email_468,,
-email_472,,
-email_474,,
-email_476,,
-email_480,,
-email_483,,
-email_484,,
-email_490,,
-email_491,,
-email_495,,
-email_497,,
-email_498,,
-email_509,,
-email_512,,
-email_519,,
+email_001,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_002,Invoice Query,Asks whether local charges are included in the invoice
+email_003,Document Comparison,Requests the draft BL to be sent for checking
+email_004,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_005,Document Comparison,SI and draft BL are attached for verification
+email_006,Document Comparison,Requests the draft BL to be sent for checking
+email_007,New SI Request,Provides a full shipping instruction with route and party details
+email_008,New SI Request,Provides a full shipping instruction with route and party details
+email_009,Document Comparison,SI and draft BL are attached for verification
+email_010,Invoice Query,Asks whether local charges are included in the invoice
+email_011,General Message,Internal outstanding BL status and follow-up notice
+email_012,General Message,Daily vessel berthing operational report
+email_013,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_014,New SI Request,Provides a full shipping instruction with route and party details
+email_015,Spam,Mailbox-verification phishing message with an urgent deactivation warning
+email_016,Document Comparison,Requests the draft BL to be sent for checking
+email_017,Invoice Query,Requests confirmation of D&D and detention charges before payment
+email_018,Document Comparison,Requests the draft BL to be sent for checking
+email_019,New SI Request,Provides a full shipping instruction with route and party details
+email_020,New SI Request,Provides a full shipping instruction with route and party details
+email_021,General Message,Operational reminder to submit pending SI and AED
+email_022,New SI Request,Provides a full shipping instruction with route and party details
+email_023,New SI Request,Provides a full shipping instruction with route and party details
+email_024,Invoice Query,Reports a missing GR for an invoice and requests billing action
+email_025,Document Comparison,Explicitly asks to compare the draft BL against the SI
+email_026,Spam,Unsolicited high-discount logistics promotion
+email_027,New SI Request,Provides a full shipping instruction with route and party details
+email_028,New SI Request,Provides a full shipping instruction with route and party details
+email_029,New SI Request,Provides a full shipping instruction with route and party details
+email_030,New SI Request,Provides a full shipping instruction with route and party details
+email_031,Document Comparison,Explicitly asks to compare the draft BL against the SI
+email_032,Document Comparison,Explicitly asks to compare the draft BL against the SI
+email_033,New SI Request,Provides a full shipping instruction with route and party details
+email_034,Document Comparison,Explicitly asks to compare the draft BL against the SI
+email_035,New SI Request,Provides a full shipping instruction with route and party details
+email_036,Document Comparison,Requests the draft BL to be sent for checking
+email_037,General Message,Operational update summary with loading status
+email_038,Document Comparison,Requests the draft BL to be sent for checking
+email_039,New SI Request,Provides a full shipping instruction with route and party details
+email_040,Document Comparison,SI and draft BL are attached for verification
+email_041,Invoice Query,Requests confirmation of D&D and detention charges before payment
+email_042,New SI Request,Provides a full shipping instruction with route and party details
+email_043,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_044,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_045,Invoice Query,Requests confirmation of D&D and detention charges before payment
+email_046,Document Comparison,SI and draft BL are attached for verification
+email_047,Document Comparison,Requests the draft BL to be sent for checking
+email_048,Invoice Query,Requests confirmation of D&D and detention charges before payment
+email_049,Document Comparison,Requests the draft BL to be sent for checking
+email_050,Document Comparison,Requests the draft BL to be sent for checking
+email_051,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_052,Document Comparison,SI and draft BL are attached for verification
+email_053,General Message,New Year greeting and office resumption announcement
+email_054,New SI Request,Provides a full shipping instruction with route and party details
+email_055,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_056,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_057,New SI Request,Provides a full shipping instruction with route and party details
+email_058,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_059,Document Comparison,Explicitly asks to compare the draft BL against the SI
+email_060,Invoice Query,Asks whether local charges are included in the invoice
+email_061,Document Comparison,Requests the draft BL to be sent for checking
+email_062,Invoice Query,Asks whether local charges are included in the invoice
+email_063,Document Comparison,Requests the draft BL to be sent for checking
+email_064,Document Comparison,SI and draft BL are attached for verification
+email_065,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_066,Document Comparison,Requests the draft BL to be sent for checking
+email_067,New SI Request,Provides a full shipping instruction with route and party details
+email_068,Document Comparison,SI and draft BL are attached for verification
+email_069,Invoice Query,Reports a missing GR for an invoice and requests billing action
+email_070,General Message,Daily vessel berthing operational report
+email_071,Document Comparison,Explicitly asks to compare the draft BL against the SI
+email_072,Spam,Fake prize or gift-card claim containing a suspicious link
+email_073,New SI Request,Provides a full shipping instruction with route and party details
+email_074,Invoice Query,Asks whether local charges are included in the invoice
+email_075,General Message,Automated billing-process completion notice with no action required
+email_076,General Message,Internal outstanding BL status and follow-up notice
+email_077,Document Comparison,Requests the draft BL to be sent for checking
+email_078,Invoice Query,Asks whether local charges are included in the invoice
+email_079,New SI Request,Provides a full shipping instruction with route and party details
+email_080,Document Comparison,Requests the draft BL to be sent for checking
+email_081,Document Comparison,Requests the draft BL to be sent for checking
+email_082,Document Comparison,Explicitly asks to compare the draft BL against the SI
+email_083,General Message,Daily vessel berthing operational report
+email_084,New SI Request,Provides a full shipping instruction with route and party details
+email_085,Invoice Query,Asks whether local charges are included in the invoice
+email_086,General Message,Operational reminder to submit pending SI and AED
+email_087,Invoice Query,Reports a missing GR for an invoice and requests billing action
+email_088,Document Comparison,Requests the draft BL to be sent for checking
+email_089,General Message,Operational reminder to submit pending SI and AED
+email_090,Document Comparison,SI and draft BL are attached for verification
+email_091,Document Comparison,Explicitly asks to compare the draft BL against the SI
+email_092,Document Comparison,Requests the draft BL to be sent for checking
+email_093,New SI Request,Provides a full shipping instruction with route and party details
+email_094,New SI Request,Provides a full shipping instruction with route and party details
+email_095,Document Comparison,Requests the draft BL to be sent for checking
+email_096,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_097,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_098,General Message,Automated billing-process completion notice with no action required
+email_099,Invoice Query,Asks whether local charges are included in the invoice
+email_100,Document Comparison,Requests the draft BL to be sent for checking
+email_101,New SI Request,Provides a full shipping instruction with route and party details
+email_102,Invoice Query,Reports a missing GR for an invoice and requests billing action
+email_103,New SI Request,Provides a full shipping instruction with route and party details
+email_104,Invoice Query,Asks whether local charges are included in the invoice
+email_105,Document Comparison,Requests the draft BL to be sent for checking
+email_106,New SI Request,Provides a full shipping instruction with route and party details
+email_107,Document Comparison,SI and draft BL are attached for verification
+email_108,Invoice Query,Requests invoice cancellation and PGI reversal
+email_109,Document Comparison,Requests the draft BL to be sent for checking
+email_110,New SI Request,Provides a full shipping instruction with route and party details
+email_111,Document Comparison,SI and draft BL are attached for verification
+email_112,Invoice Query,Asks whether local charges are included in the invoice
+email_113,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_114,Document Comparison,Requests the draft BL to be sent for checking
+email_115,Invoice Query,Reports a missing GR for an invoice and requests billing action
+email_116,Spam,Fake parcel-delivery notice requesting a small customs payment
+email_117,General Message,Automated billing-process completion notice with no action required
+email_118,Document Comparison,Explicitly asks to compare the draft BL against the SI
+email_119,Document Comparison,Explicitly asks to compare the draft BL against the SI
+email_120,New SI Request,Provides a full shipping instruction with route and party details
+email_121,Document Comparison,Explicitly asks to compare the draft BL against the SI
+email_122,New SI Request,Provides a full shipping instruction with route and party details
+email_123,Spam,Fake prize or gift-card claim containing a suspicious link
+email_124,New SI Request,Provides a full shipping instruction with route and party details
+email_125,New SI Request,Provides a full shipping instruction with route and party details
+email_126,General Message,Daily vessel berthing operational report
+email_127,New SI Request,Provides a full shipping instruction with route and party details
+email_128,Document Comparison,SI and draft BL are attached for verification
+email_129,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_130,New SI Request,Provides a full shipping instruction with route and party details
+email_131,New SI Request,Provides a full shipping instruction with route and party details
+email_132,Document Comparison,SI and draft BL are attached for verification
+email_133,Document Comparison,SI and draft BL are attached for verification
+email_134,Spam,Fake parcel-delivery notice requesting a small customs payment
+email_135,New SI Request,Provides a full shipping instruction with route and party details
+email_136,Document Comparison,Requests the draft BL to be sent for checking
+email_137,New SI Request,Provides a full shipping instruction with route and party details
+email_138,New SI Request,Provides a full shipping instruction with route and party details
+email_139,Invoice Query,Asks whether local charges are included in the invoice
+email_140,Spam,Mailbox-verification phishing message with an urgent deactivation warning
+email_141,Document Comparison,Requests the draft BL to be sent for checking
+email_142,General Message,New Year greeting and office resumption announcement
+email_143,Document Comparison,Explicitly asks to compare the draft BL against the SI
+email_144,Document Comparison,SI and draft BL are attached for verification
+email_145,Document Comparison,Explicitly asks to compare the draft BL against the SI
+email_146,Document Comparison,Explicitly asks to compare the draft BL against the SI
+email_147,General Message,Internal outstanding BL status and follow-up notice
+email_148,New SI Request,Provides a full shipping instruction with route and party details
+email_149,New SI Request,Provides a full shipping instruction with route and party details
+email_150,Spam,Unsolicited high-discount logistics promotion
+email_151,New SI Request,Provides a full shipping instruction with route and party details
+email_152,Document Comparison,Requests the draft BL to be sent for checking
+email_153,General Message,Daily vessel berthing operational report
+email_154,New SI Request,Provides a full shipping instruction with route and party details
+email_155,Invoice Query,Asks whether local charges are included in the invoice
+email_156,Spam,Mailbox-verification phishing message with an urgent deactivation warning
+email_157,New SI Request,Provides a full shipping instruction with route and party details
+email_158,Document Comparison,Requests the draft BL to be sent for checking
+email_159,General Message,Internal outstanding BL status and follow-up notice
+email_160,Document Comparison,Explicitly asks to compare the draft BL against the SI
+email_161,Document Comparison,Requests the draft BL to be sent for checking
+email_162,New SI Request,Provides a full shipping instruction with route and party details
+email_163,New SI Request,Provides a full shipping instruction with route and party details
+email_164,New SI Request,Provides a full shipping instruction with route and party details
+email_165,Invoice Query,Requests confirmation of D&D and detention charges before payment
+email_166,New SI Request,Provides a full shipping instruction with route and party details
+email_167,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_168,New SI Request,Provides a full shipping instruction with route and party details
+email_169,Invoice Query,Reports a missing GR for an invoice and requests billing action
+email_170,Invoice Query,Reports a missing GR for an invoice and requests billing action
+email_171,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_172,New SI Request,Provides a full shipping instruction with route and party details
+email_173,General Message,Daily vessel berthing operational report
+email_174,Document Comparison,SI and draft BL are attached for verification
+email_175,Document Comparison,Explicitly asks to compare the draft BL against the SI
+email_176,Document Comparison,Requests the draft BL to be sent for checking
+email_177,New SI Request,Provides a full shipping instruction with route and party details
+email_178,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_179,Invoice Query,Reports a missing GR for an invoice and requests billing action
+email_180,Spam,Unsolicited high-discount logistics promotion
+email_181,New SI Request,Provides a full shipping instruction with route and party details
+email_182,Document Comparison,SI and draft BL are attached for verification
+email_183,New SI Request,Provides a full shipping instruction with route and party details
+email_184,Spam,Unsolicited high-discount logistics promotion
+email_185,General Message,Operational update summary with loading status
+email_186,Document Comparison,Requests the draft BL to be sent for checking
+email_187,Document Comparison,Requests the draft BL to be sent for checking
+email_188,Spam,Mailbox-verification phishing message with an urgent deactivation warning
+email_189,Document Comparison,Requests the draft BL to be sent for checking
+email_190,Document Comparison,Requests the draft BL to be sent for checking
+email_191,Invoice Query,Requests invoice cancellation and PGI reversal
+email_192,New SI Request,Provides a full shipping instruction with route and party details
+email_193,New SI Request,Provides a full shipping instruction with route and party details
+email_194,General Message,Automated billing-process completion notice with no action required
+email_195,Document Comparison,Requests the draft BL to be sent for checking
+email_196,New SI Request,Provides a full shipping instruction with route and party details
+email_197,Document Comparison,SI and draft BL are attached for verification
+email_198,Document Comparison,Explicitly asks to compare the draft BL against the SI
+email_199,Document Comparison,Requests the draft BL to be sent for checking
+email_200,General Message,Operational reminder to submit pending SI and AED
+email_201,New SI Request,Provides a full shipping instruction with route and party details
+email_202,New SI Request,Provides a full shipping instruction with route and party details
+email_203,Invoice Query,Reports a missing GR for an invoice and requests billing action
+email_204,Spam,Fake prize or gift-card claim containing a suspicious link
+email_205,New SI Request,Provides a full shipping instruction with route and party details
+email_206,Spam,Fake prize or gift-card claim containing a suspicious link
+email_207,Document Comparison,Requests the draft BL to be sent for checking
+email_208,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_209,New SI Request,Provides a full shipping instruction with route and party details
+email_210,Document Comparison,Requests the draft BL to be sent for checking
+email_211,Invoice Query,Reports a missing GR for an invoice and requests billing action
+email_212,Invoice Query,Asks whether local charges are included in the invoice
+email_213,General Message,Daily vessel berthing operational report
+email_214,New SI Request,Provides a full shipping instruction with route and party details
+email_215,Spam,Fake iPhone prize requiring a survey and shipping payment
+email_216,Invoice Query,Reports a missing GR for an invoice and requests billing action
+email_217,New SI Request,Provides a full shipping instruction with route and party details
+email_218,General Message,Internal outstanding BL status and follow-up notice
+email_219,General Message,Automated billing-process completion notice with no action required
+email_220,Document Comparison,Requests the draft BL to be sent for checking
+email_221,New SI Request,Provides a full shipping instruction with route and party details
+email_222,Spam,Unsolicited high-discount logistics promotion
+email_223,Document Comparison,Requests the draft BL to be sent for checking
+email_224,Invoice Query,Requests confirmation of D&D and detention charges before payment
+email_225,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_226,Spam,Suspicious money proposal requesting bank details
+email_227,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_228,New SI Request,Provides a full shipping instruction with route and party details
+email_229,Document Comparison,Requests the draft BL to be sent for checking
+email_230,General Message,Operational reminder to submit pending SI and AED
+email_231,Spam,Fake prize or gift-card claim containing a suspicious link
+email_232,General Message,Automated billing-process completion notice with no action required
+email_233,New SI Request,Provides a full shipping instruction with route and party details
+email_234,General Message,Operational reminder to submit pending SI and AED
+email_235,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_236,Invoice Query,Requests invoice cancellation and PGI reversal
+email_237,Document Comparison,Requests the draft BL to be sent for checking
+email_238,General Message,Operational reminder to submit pending SI and AED
+email_239,Document Comparison,SI and draft BL are attached for verification
+email_240,New SI Request,Provides a full shipping instruction with route and party details
+email_241,General Message,Daily vessel berthing operational report
+email_242,Document Comparison,Requests the draft BL to be sent for checking
+email_243,Document Comparison,SI and draft BL are attached for verification
+email_244,New SI Request,Provides a full shipping instruction with route and party details
+email_245,New SI Request,Provides a full shipping instruction with route and party details
+email_246,New SI Request,Provides a full shipping instruction with route and party details
+email_247,Document Comparison,Requests the draft BL to be sent for checking
+email_248,Spam,Mailbox-verification phishing message with an urgent deactivation warning
+email_249,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_250,Document Comparison,Requests the draft BL to be sent for checking
+email_251,New SI Request,Provides a full shipping instruction with route and party details
+email_252,General Message,Automated billing-process completion notice with no action required
+email_253,Spam,Fake prize or gift-card claim containing a suspicious link
+email_254,Spam,Mailbox-verification phishing message with an urgent deactivation warning
+email_255,General Message,Internal outstanding BL status and follow-up notice
+email_256,Document Comparison,SI and draft BL are attached for verification
+email_257,New SI Request,Provides a full shipping instruction with route and party details
+email_258,General Message,Operational update summary with loading status
+email_259,Document Comparison,Requests the draft BL to be sent for checking
+email_260,New SI Request,Provides a full shipping instruction with route and party details
+email_261,Document Comparison,Requests the draft BL to be sent for checking
+email_262,Invoice Query,Reports a missing GR for an invoice and requests billing action
+email_263,Document Comparison,Requests the draft BL to be sent for checking
+email_264,New SI Request,Provides a full shipping instruction with route and party details
+email_265,Document Comparison,Requests the draft BL to be sent for checking
+email_266,General Message,Operational reminder to submit pending SI and AED
+email_267,Spam,Fake prize or gift-card claim containing a suspicious link
+email_268,Invoice Query,Requests confirmation of D&D and detention charges before payment
+email_269,Invoice Query,Requests invoice cancellation and PGI reversal
+email_270,Document Comparison,SI and draft BL are attached for verification
+email_271,Document Comparison,Requests the draft BL to be sent for checking
+email_272,Invoice Query,Reports a missing GR for an invoice and requests billing action
+email_273,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_274,Invoice Query,Requests invoice cancellation and PGI reversal
+email_275,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_276,New SI Request,Provides a full shipping instruction with route and party details
+email_277,New SI Request,Provides a full shipping instruction with route and party details
+email_278,New SI Request,Provides a full shipping instruction with route and party details
+email_279,New SI Request,Provides a full shipping instruction with route and party details
+email_280,Invoice Query,Requests invoice cancellation and PGI reversal
+email_281,Document Comparison,Requests the draft BL to be sent for checking
+email_282,Document Comparison,Requests the draft BL to be sent for checking
+email_283,New SI Request,Provides a full shipping instruction with route and party details
+email_284,Invoice Query,Reports a missing GR for an invoice and requests billing action
+email_285,Invoice Query,Reports a missing GR for an invoice and requests billing action
+email_286,Invoice Query,Asks whether local charges are included in the invoice
+email_287,Invoice Query,Asks whether local charges are included in the invoice
+email_288,Document Comparison,Requests the draft BL to be sent for checking
+email_289,New SI Request,Provides a full shipping instruction with route and party details
+email_290,New SI Request,Provides a full shipping instruction with route and party details
+email_291,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_292,Document Comparison,Requests the draft BL to be sent for checking
+email_293,New SI Request,Provides a full shipping instruction with route and party details
+email_294,General Message,Daily vessel berthing operational report
+email_295,New SI Request,Provides a full shipping instruction with route and party details
+email_296,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_297,General Message,Automated billing-process completion notice with no action required
+email_298,Invoice Query,Requests invoice cancellation and PGI reversal
+email_299,Document Comparison,Requests the draft BL to be sent for checking
+email_300,Document Comparison,SI and draft BL are attached for verification
+email_301,Document Comparison,Requests the draft BL to be sent for checking
+email_302,Document Comparison,SI and draft BL are attached for verification
+email_303,Invoice Query,Reports a missing GR for an invoice and requests billing action
+email_304,Invoice Query,Reports a missing GR for an invoice and requests billing action
+email_305,Document Comparison,Requests the draft BL to be sent for checking
+email_306,New SI Request,Provides a full shipping instruction with route and party details
+email_307,Document Comparison,SI and draft BL are attached for verification
+email_308,New SI Request,Provides a full shipping instruction with route and party details
+email_309,Document Comparison,Requests the draft BL to be sent for checking
+email_310,New SI Request,Provides a full shipping instruction with route and party details
+email_311,New SI Request,Provides a full shipping instruction with route and party details
+email_312,Document Comparison,Explicitly asks to compare the draft BL against the SI
+email_313,Document Comparison,Explicitly asks to compare the draft BL against the SI
+email_314,Invoice Query,Reports a missing GR for an invoice and requests billing action
+email_315,Spam,Fake iPhone prize requiring a survey and shipping payment
+email_316,Invoice Query,Asks whether local charges are included in the invoice
+email_317,New SI Request,Provides a full shipping instruction with route and party details
+email_318,Document Comparison,Requests the draft BL to be sent for checking
+email_319,Document Comparison,Requests the draft BL to be sent for checking
+email_320,New SI Request,Provides a full shipping instruction with route and party details
+email_321,Document Comparison,Requests the draft BL to be sent for checking
+email_322,New SI Request,Provides a full shipping instruction with route and party details
+email_323,General Message,Automated billing-process completion notice with no action required
+email_324,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_325,General Message,Operational update summary with loading status
+email_326,Document Comparison,Requests the draft BL to be sent for checking
+email_327,New SI Request,Provides a full shipping instruction with route and party details
+email_328,General Message,Operational update summary with loading status
+email_329,Spam,Fake parcel-delivery notice requesting a small customs payment
+email_330,General Message,Operational reminder to submit pending SI and AED
+email_331,Invoice Query,Requests confirmation of D&D and detention charges before payment
+email_332,General Message,Daily vessel berthing operational report
+email_333,General Message,Internal outstanding BL status and follow-up notice
+email_334,Document Comparison,Explicitly asks to compare the draft BL against the SI
+email_335,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_336,New SI Request,Provides a full shipping instruction with route and party details
+email_337,Document Comparison,Requests the draft BL to be sent for checking
+email_338,New SI Request,Provides a full shipping instruction with route and party details
+email_339,New SI Request,Provides a full shipping instruction with route and party details
+email_340,General Message,Automated billing-process completion notice with no action required
+email_341,Document Comparison,Requests the draft BL to be sent for checking
+email_342,Document Comparison,Explicitly asks to compare the draft BL against the SI
+email_343,Document Comparison,Requests the draft BL to be sent for checking
+email_344,New SI Request,Provides a full shipping instruction with route and party details
+email_345,Spam,Suspicious money proposal requesting bank details
+email_346,General Message,Operational update summary with loading status
+email_347,General Message,Operational reminder to submit pending SI and AED
+email_348,Document Comparison,Explicitly asks to compare the draft BL against the SI
+email_349,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_350,Document Comparison,Requests the draft BL to be sent for checking
+email_351,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_352,New SI Request,Provides a full shipping instruction with route and party details
+email_353,New SI Request,Provides a full shipping instruction with route and party details
+email_354,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_355,Invoice Query,Requests confirmation of D&D and detention charges before payment
+email_356,General Message,Daily vessel berthing operational report
+email_357,New SI Request,Provides a full shipping instruction with route and party details
+email_358,New SI Request,Provides a full shipping instruction with route and party details
+email_359,New SI Request,Provides a full shipping instruction with route and party details
+email_360,New SI Request,Provides a full shipping instruction with route and party details
+email_361,Document Comparison,Explicitly asks to compare the draft BL against the SI
+email_362,New SI Request,Provides a full shipping instruction with route and party details
+email_363,Spam,Suspicious money proposal requesting bank details
+email_364,Document Comparison,SI and draft BL are attached for verification
+email_365,Spam,Fake iPhone prize requiring a survey and shipping payment
+email_366,General Message,Internal outstanding BL status and follow-up notice
+email_367,Document Comparison,SI and draft BL are attached for verification
+email_368,New SI Request,Provides a full shipping instruction with route and party details
+email_369,Invoice Query,Requests confirmation of D&D and detention charges before payment
+email_370,New SI Request,Provides a full shipping instruction with route and party details
+email_371,New SI Request,Provides a full shipping instruction with route and party details
+email_372,Invoice Query,Requests confirmation of D&D and detention charges before payment
+email_373,Invoice Query,Requests confirmation of D&D and detention charges before payment
+email_374,Invoice Query,Requests confirmation of D&D and detention charges before payment
+email_375,Invoice Query,Asks whether local charges are included in the invoice
+email_376,New SI Request,Provides a full shipping instruction with route and party details
+email_377,Document Comparison,SI and draft BL are attached for verification
+email_378,Document Comparison,SI and draft BL are attached for verification
+email_379,Document Comparison,Explicitly asks to compare the draft BL against the SI
+email_380,New SI Request,Provides a full shipping instruction with route and party details
+email_381,Document Comparison,Requests the draft BL to be sent for checking
+email_382,Spam,Mailbox-verification phishing message with an urgent deactivation warning
+email_383,Document Comparison,SI and draft BL are attached for verification
+email_384,Document Comparison,Requests the draft BL to be sent for checking
+email_385,Document Comparison,Requests the draft BL to be sent for checking
+email_386,Invoice Query,Reports a missing GR for an invoice and requests billing action
+email_387,Spam,Fake parcel-delivery notice requesting a small customs payment
+email_388,New SI Request,Provides a full shipping instruction with route and party details
+email_389,Invoice Query,Requests confirmation of D&D and detention charges before payment
+email_390,Spam,Suspicious money proposal requesting bank details
+email_391,Document Comparison,SI and draft BL are attached for verification
+email_392,Spam,Mailbox-verification phishing message with an urgent deactivation warning
+email_393,New SI Request,Provides a full shipping instruction with route and party details
+email_394,General Message,Automated billing-process completion notice with no action required
+email_395,Spam,Fake prize or gift-card claim containing a suspicious link
+email_396,General Message,Automated billing-process completion notice with no action required
+email_397,New SI Request,Provides a full shipping instruction with route and party details
+email_398,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_399,General Message,Automated billing-process completion notice with no action required
+email_400,New SI Request,Provides a full shipping instruction with route and party details
+email_401,Document Comparison,Requests the draft BL to be sent for checking
+email_402,Invoice Query,Asks whether local charges are included in the invoice
+email_403,Invoice Query,Requests invoice cancellation and PGI reversal
+email_404,Spam,Fake parcel-delivery notice requesting a small customs payment
+email_405,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_406,Invoice Query,Requests invoice cancellation and PGI reversal
+email_407,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_408,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_409,Document Comparison,Explicitly asks to compare the draft BL against the SI
+email_410,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_411,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_412,Invoice Query,Reports a missing GR for an invoice and requests billing action
+email_413,New SI Request,Provides a full shipping instruction with route and party details
+email_414,General Message,Daily vessel berthing operational report
+email_415,General Message,New Year greeting and office resumption announcement
+email_416,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_417,Spam,Suspicious money proposal requesting bank details
+email_418,General Message,Daily vessel berthing operational report
+email_419,Document Comparison,Requests the draft BL to be sent for checking
+email_420,Invoice Query,Asks whether local charges are included in the invoice
+email_421,Document Comparison,Requests the draft BL to be sent for checking
+email_422,Invoice Query,Reports a missing GR for an invoice and requests billing action
+email_423,Document Comparison,Requests the draft BL to be sent for checking
+email_424,Document Comparison,Requests the draft BL to be sent for checking
+email_425,Invoice Query,Requests invoice cancellation and PGI reversal
+email_426,Document Comparison,SI and draft BL are attached for verification
+email_427,New SI Request,Provides a full shipping instruction with route and party details
+email_428,Document Comparison,Explicitly asks to compare the draft BL against the SI
+email_429,New SI Request,Provides a full shipping instruction with route and party details
+email_430,New SI Request,Provides a full shipping instruction with route and party details
+email_431,General Message,Operational reminder to submit pending SI and AED
+email_432,Document Comparison,Requests the draft BL to be sent for checking
+email_433,New SI Request,Provides a full shipping instruction with route and party details
+email_434,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_435,Document Comparison,SI and draft BL are attached for verification
+email_436,Document Comparison,Requests the draft BL to be sent for checking
+email_437,New SI Request,Provides a full shipping instruction with route and party details
+email_438,New SI Request,Provides a full shipping instruction with route and party details
+email_439,Invoice Query,Requests confirmation of D&D and detention charges before payment
+email_440,Document Comparison,Requests the draft BL to be sent for checking
+email_441,General Message,Automated billing-process completion notice with no action required
+email_442,Document Comparison,Requests the draft BL to be sent for checking
+email_443,New SI Request,Provides a full shipping instruction with route and party details
+email_444,Document Comparison,Requests the draft BL to be sent for checking
+email_445,General Message,Daily vessel berthing operational report
+email_446,Document Comparison,Requests the draft BL to be sent for checking
+email_447,Document Comparison,Requests the draft BL to be sent for checking
+email_448,Document Comparison,Requests the draft BL to be sent for checking
+email_449,Spam,Fake parcel-delivery notice requesting a small customs payment
+email_450,Spam,Fake prize or gift-card claim containing a suspicious link
+email_451,Document Comparison,Requests the draft BL to be sent for checking
+email_452,Invoice Query,Reports a missing GR for an invoice and requests billing action
+email_453,Document Comparison,Explicitly asks to compare the draft BL against the SI
+email_454,Document Comparison,Requests the draft BL to be sent for checking
+email_455,Spam,Suspicious money proposal requesting bank details
+email_456,Document Comparison,Requests the draft BL to be sent for checking
+email_457,Spam,Fake iPhone prize requiring a survey and shipping payment
+email_458,Invoice Query,Requests confirmation of D&D and detention charges before payment
+email_459,Document Comparison,Requests the draft BL to be sent for checking
+email_460,General Message,Operational reminder to submit pending SI and AED
+email_461,Invoice Query,Asks whether local charges are included in the invoice
+email_462,Document Comparison,SI and draft BL are attached for verification
+email_463,General Message,Automated billing-process completion notice with no action required
+email_464,General Message,Daily vessel berthing operational report
+email_465,Document Comparison,Requests the draft BL to be sent for checking
+email_466,New SI Request,Provides a full shipping instruction with route and party details
+email_467,New SI Request,Provides a full shipping instruction with route and party details
+email_468,Document Comparison,Explicitly asks to compare the draft BL against the SI
+email_469,New SI Request,Provides a full shipping instruction with route and party details
+email_470,Spam,Fake prize or gift-card claim containing a suspicious link
+email_471,Invoice Query,Requests confirmation of D&D and detention charges before payment
+email_472,Invoice Query,Requests invoice cancellation and PGI reversal
+email_473,Invoice Query,Requests confirmation of D&D and detention charges before payment
+email_474,Document Comparison,SI and draft BL are attached for verification
+email_475,New SI Request,Provides a full shipping instruction with route and party details
+email_476,Document Comparison,Requests the draft BL to be sent for checking
+email_477,New SI Request,Provides a full shipping instruction with route and party details
+email_478,New SI Request,Provides a full shipping instruction with route and party details
+email_479,Document Comparison,SI and draft BL are attached for verification
+email_480,Document Comparison,Requests the draft BL to be sent for checking
+email_481,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_482,Document Comparison,Requests the draft BL to be sent for checking
+email_483,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_484,New SI Request,Provides a full shipping instruction with route and party details
+email_485,New SI Request,Provides a full shipping instruction with route and party details
+email_486,Document Comparison,Requests the draft BL to be sent for checking
+email_487,New SI Request,Provides a full shipping instruction with route and party details
+email_488,General Message,Internal outstanding BL status and follow-up notice
+email_489,Spam,Fake iPhone prize requiring a survey and shipping payment
+email_490,Invoice Query,Reports a missing GR for an invoice and requests billing action
+email_491,Document Comparison,Explicitly asks to compare the draft BL against the SI
+email_492,Invoice Query,Asks whether local charges are included in the invoice
+email_493,Document Comparison,Requests the draft BL to be sent for checking
+email_494,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_495,Document Comparison,Requests the draft BL to be sent for checking
+email_496,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_497,Invoice Query,Asks whether local charges are included in the invoice
+email_498,Document Comparison,SI and draft BL are attached for checking and confirmation
+email_499,Document Comparison,Explicitly asks to compare the draft BL against the SI
+email_500,Invoice Query,Requests invoice cancellation and PGI reversal
+email_501,Document Comparison,Comparison requested but the second attachment is a Commercial Invoice instead of the draft BL
+email_502,Document Comparison,Comparison requested but the second attachment is a Packing List instead of the draft BL
+email_503,Document Comparison,Comparison requested but the second attachment is a Certificate of Origin instead of the draft BL
+email_504,Document Comparison,Comparison requested but the second attachment is a Packing List instead of the draft BL
+email_505,Document Comparison,Comparison requested but the second attachment is a Certificate of Origin instead of the draft BL
+email_506,Document Comparison,SI versus draft BL comparison requested but the attachments are missing
+email_507,Document Comparison,SI versus draft BL comparison requested but the draft BL is missing
+email_508,Document Comparison,SI versus draft BL comparison requested but the attachments are missing
+email_509,Document Comparison,SI versus draft BL comparison requested but the draft BL is missing
+email_510,Document Comparison,SI versus draft BL comparison requested but the attachments are missing
+email_511,Document Comparison,SI versus draft BL comparison requested but the BL file cannot be opened
+email_512,Document Comparison,SI versus draft BL comparison requested using scanned image-only documents
+email_513,Document Comparison,SI versus draft BL comparison requested using scanned image-only documents
+email_514,Document Comparison,SI versus draft BL comparison requested using scanned image-only documents
+email_515,Document Comparison,SI versus draft BL comparison requested but the BL file cannot be opened
+email_516,Document Comparison,SI versus draft BL comparison requested with incomplete SI fields
+email_517,Document Comparison,SI versus draft BL comparison requested with incomplete SI fields
+email_518,Document Comparison,SI versus draft BL comparison requested with incomplete SI fields
+email_519,Document Comparison,SI versus draft BL comparison requested with incomplete SI fields
+email_520,Document Comparison,SI versus draft BL comparison requested with incomplete SI fields

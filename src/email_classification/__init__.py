@@ -5,6 +5,15 @@ from .data_loader import (
     ValidationResult,
     load_and_validate,
 )
+from .cross_validation import (
+    CATEGORY_LABEL_MAP,
+    DEFAULT_CV_FOLDS,
+    CVAssignment,
+    CVFoldSummary,
+    CrossValidationError,
+    CrossValidationPlan,
+    build_cross_validation_plan,
+)
 from .splitting import (
     ALLOWED_CATEGORIES,
     DEFAULT_SPLIT_SEED,
@@ -22,6 +31,7 @@ from .split_artifacts import (
     SplitManifest,
     read_annotations,
     read_manifest,
+    write_cross_validation,
     write_stage_a,
     write_stage_b,
 )
@@ -32,6 +42,13 @@ __all__ = [
     "ValidationIssue",
     "ValidationResult",
     "load_and_validate",
+    "CATEGORY_LABEL_MAP",
+    "DEFAULT_CV_FOLDS",
+    "CVAssignment",
+    "CVFoldSummary",
+    "CrossValidationError",
+    "CrossValidationPlan",
+    "build_cross_validation_plan",
     "DEFAULT_SPLIT_SEED",
     "ALLOWED_CATEGORIES",
     "SplitError",
@@ -46,6 +63,7 @@ __all__ = [
     "SplitManifest",
     "read_annotations",
     "read_manifest",
+    "write_cross_validation",
     "write_stage_a",
     "write_stage_b",
 ]

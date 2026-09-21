@@ -6,6 +6,8 @@ import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from types import SimpleNamespace
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -73,6 +75,72 @@ def run_main(arguments):
     with redirect_stdout(stdout), redirect_stderr(stderr):
         exit_code = main(arguments)
     return exit_code, stdout.getvalue(), stderr.getvalue()
+
+
+HUMAN_CATEGORIES = [
+    "Document Comparison",
+    "New SI Request",
+    "Invoice Query",
+    "General Message",
+    "Spam",
+]
+
+
+def write_annotations(path, count=520, *, duplicate=False, empty=False, unknown=False):
+    rows = []
+    for number in range(1, count + 1):
+        category = HUMAN_CATEGORIES[(number - 1) % len(HUMAN_CATEGORIES)]
+        if empty and number == 1:
+            category = ""
+        if unknown and number == 1:
+            category = "Something Else"
+        rows.append(
+            {
+                "email_id": f"email_{number:03d}",
+                "category": category,
+                "notes": "",
+            }
+        )
+    if duplicate:
+        rows[-1]["email_id"] = rows[0]["email_id"]
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="") as stream:
+        writer = csv.DictWriter(
+            stream,
+            fieldnames=["email_id", "category", "notes"],
+            lineterminator="\n",
+        )
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def fake_cross_validation_api():
+    def build(records, labels, n_splits, seed):
+        allowed = set(HUMAN_CATEGORIES)
+        invalid = sorted(set(labels.values()) - allowed)
+        if invalid:
+            raise ValueError(f"Unknown category: {invalid[0]}")
+        if {record["email_id"] for record in records} != set(labels):
+            raise ValueError("Inbox and annotation IDs do not match")
+        return SimpleNamespace(
+            assignments=tuple(records),
+            total_groups=len(records),
+            n_splits=n_splits,
+            seed=seed,
+        )
+
+    def write(output_dir, plan, annotation_sha256):
+        output_dir.mkdir(parents=True, exist_ok=True)
+        (output_dir / "cv_assignments.csv").write_text(
+            "email_id,category,group_id,fold\n", encoding="utf-8"
+        )
+        (output_dir / "cv_folds.json").write_text(
+            json.dumps({"annotation_sha256": annotation_sha256}) + "\n",
+            encoding="utf-8",
+        )
+
+    return build, write
 
 
 class PrepareSplitsCliTests(unittest.TestCase):
@@ -206,6 +274,123 @@ class PrepareSplitsCliTests(unittest.TestCase):
         )
         self.assertEqual(len(development["records"]), 80)
         self.assertEqual(len(final_test["records"]), 40)
+
+    def test_cross_validate_uses_all_records_and_preserves_annotations(self):
+        with TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            bundle = create_bundle(root)
+            annotations_path = root / "annotations.csv"
+            output_dir = root / "splits"
+            write_annotations(annotations_path)
+            annotation_bytes = annotations_path.read_bytes()
+            api = fake_cross_validation_api()
+
+            with patch(
+                "scripts.prepare_splits._load_cross_validation_api",
+                return_value=api,
+            ):
+                exit_code, stdout, stderr = run_main(
+                    [
+                        "cross-validate",
+                        str(bundle),
+                        str(annotations_path),
+                        str(output_dir),
+                    ]
+                )
+
+            generated = {
+                path.name for path in output_dir.iterdir() if path.is_file()
+            }
+            preserved_annotation_bytes = annotations_path.read_bytes()
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(stderr, "")
+        self.assertEqual(
+            json.loads(stdout),
+            {"folds": 5, "groups": 520, "records": 520, "seed": 20260921},
+        )
+        self.assertEqual(preserved_annotation_bytes, annotation_bytes)
+        self.assertEqual(generated, {"cv_assignments.csv", "cv_folds.json"})
+
+    def test_cross_validate_rejects_incomplete_duplicate_and_empty_annotations(self):
+        scenarios = {
+            "incomplete": {"count": 519},
+            "duplicate": {"duplicate": True},
+            "empty": {"empty": True},
+        }
+        for name, options in scenarios.items():
+            with self.subTest(name=name), TemporaryDirectory() as temp_dir:
+                root = Path(temp_dir)
+                bundle = create_bundle(root)
+                annotations_path = root / "annotations.csv"
+                output_dir = root / "splits"
+                write_annotations(annotations_path, **options)
+
+                with patch(
+                    "scripts.prepare_splits._load_cross_validation_api",
+                    return_value=fake_cross_validation_api(),
+                ):
+                    exit_code, stdout, stderr = run_main(
+                        [
+                            "cross-validate",
+                            str(bundle),
+                            str(annotations_path),
+                            str(output_dir),
+                        ]
+                    )
+
+                self.assertEqual(exit_code, 1)
+                self.assertEqual(stdout, "")
+                self.assertIn("annotation", stderr.casefold())
+                self.assertFalse(output_dir.exists())
+
+    def test_cross_validate_rejects_unknown_category_without_outputs(self):
+        with TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            bundle = create_bundle(root)
+            annotations_path = root / "annotations.csv"
+            output_dir = root / "splits"
+            write_annotations(annotations_path, unknown=True)
+
+            with patch(
+                "scripts.prepare_splits._load_cross_validation_api",
+                return_value=fake_cross_validation_api(),
+            ):
+                exit_code, stdout, stderr = run_main(
+                    [
+                        "cross-validate",
+                        str(bundle),
+                        str(annotations_path),
+                        str(output_dir),
+                    ]
+                )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(stdout, "")
+        self.assertIn("Unknown category", stderr)
+        self.assertFalse(output_dir.exists())
+
+    def test_cross_validate_rejects_evaluator_annotation_path(self):
+        with TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            bundle = create_bundle(root)
+            annotations_path = root / "download" / "annotations.csv"
+            output_dir = root / "splits"
+            write_annotations(annotations_path)
+
+            exit_code, stdout, stderr = run_main(
+                [
+                    "cross-validate",
+                    str(bundle),
+                    str(annotations_path),
+                    str(output_dir),
+                ]
+            )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(stdout, "")
+        self.assertIn("evaluator-only", stderr)
+        self.assertFalse(output_dir.exists())
 
 
 if __name__ == "__main__":

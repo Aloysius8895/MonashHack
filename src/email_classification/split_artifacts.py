@@ -11,6 +11,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
+from .cross_validation import CrossValidationPlan
 from .splitting import SplitRecord, StageASelection, StageBSelection
 
 
@@ -107,6 +108,41 @@ def write_stage_b(output_dir: str | Path, selection: StageBSelection) -> None:
         ),
     }
     _write_atomic_set(output_path, payloads)
+
+
+def write_cross_validation(
+    output_dir: str | Path,
+    plan: CrossValidationPlan,
+    annotation_sha256: str,
+) -> None:
+    if not _HASH_PATTERN.fullmatch(annotation_sha256):
+        raise ArtifactError("Cross-validation annotation hash is invalid")
+
+    email_ids = [assignment.email_id for assignment in plan.assignments]
+    if len(email_ids) != len(set(email_ids)):
+        raise ArtifactError("Cross-validation assignments contain duplicate email IDs")
+    if _id_hash(email_ids) != plan.source_id_hash:
+        raise ArtifactError("Cross-validation source hash does not match assignments")
+
+    expected_folds = set(range(1, plan.n_splits + 1))
+    assigned_folds = {assignment.fold for assignment in plan.assignments}
+    summary_folds = {summary.fold for summary in plan.folds}
+    if assigned_folds != expected_folds or summary_folds != expected_folds:
+        raise ArtifactError("Cross-validation fold numbering is incomplete")
+
+    folds_by_group: dict[str, set[int]] = {}
+    for assignment in plan.assignments:
+        folds_by_group.setdefault(assignment.group_id, set()).add(assignment.fold)
+    if any(len(folds) != 1 for folds in folds_by_group.values()):
+        raise ArtifactError("A duplicate group crosses validation folds")
+    if len(folds_by_group) != plan.total_groups:
+        raise ArtifactError("Cross-validation group count does not match assignments")
+
+    payloads = {
+        "cv_assignments.csv": _cross_validation_csv_bytes(plan),
+        "cv_folds.json": _cross_validation_json_bytes(plan, annotation_sha256),
+    }
+    _write_atomic_set(Path(output_dir), payloads)
 
 
 def read_manifest(path: str | Path) -> SplitManifest:
@@ -230,6 +266,62 @@ def _blank_annotations_bytes(records: Sequence[SplitRecord]) -> bytes:
     for record in sorted(records, key=lambda item: item.email_id):
         writer.writerow({"email_id": record.email_id, "category": "", "notes": ""})
     return stream.getvalue().encode("utf-8")
+
+
+def _cross_validation_csv_bytes(plan: CrossValidationPlan) -> bytes:
+    stream = io.StringIO(newline="")
+    writer = csv.DictWriter(
+        stream,
+        fieldnames=["email_id", "category", "group_id", "fold"],
+        lineterminator="\n",
+    )
+    writer.writeheader()
+    for assignment in sorted(plan.assignments, key=lambda item: item.email_id):
+        writer.writerow(
+            {
+                "email_id": assignment.email_id,
+                "category": assignment.category,
+                "group_id": assignment.group_id,
+                "fold": assignment.fold,
+            }
+        )
+    return stream.getvalue().encode("utf-8")
+
+
+def _cross_validation_json_bytes(
+    plan: CrossValidationPlan,
+    annotation_sha256: str,
+) -> bytes:
+    payload = {
+        "schema_version": SCHEMA_VERSION,
+        "strategy": "StratifiedGroupKFold",
+        "seed": plan.seed,
+        "n_splits": plan.n_splits,
+        "sklearn_version": plan.sklearn_version,
+        "source_id_hash": plan.source_id_hash,
+        "annotation_sha256": annotation_sha256,
+        "total_records": len(plan.assignments),
+        "total_groups": plan.total_groups,
+        "overall_category_counts": dict(plan.overall_category_counts),
+        "folds": [
+            {
+                "fold": summary.fold,
+                "training_size": summary.training_size,
+                "validation_size": summary.validation_size,
+                "training_category_counts": dict(
+                    summary.training_category_counts
+                ),
+                "validation_category_counts": dict(
+                    summary.validation_category_counts
+                ),
+                "validation_proportion_deviations": dict(
+                    summary.validation_proportion_deviations
+                ),
+            }
+            for summary in sorted(plan.folds, key=lambda item: item.fold)
+        ],
+    }
+    return (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode("utf-8")
 
 
 def _write_atomic_set(output_dir: Path, payloads: Mapping[str, bytes]) -> None:

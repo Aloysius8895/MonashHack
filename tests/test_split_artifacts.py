@@ -5,6 +5,7 @@ import sys
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from types import SimpleNamespace
 
 
 SRC = Path(__file__).resolve().parents[1] / "src"
@@ -15,6 +16,7 @@ from email_classification.split_artifacts import (
     ArtifactError,
     read_annotations,
     read_manifest,
+    write_cross_validation,
     write_stage_a,
     write_stage_b,
 )
@@ -49,7 +51,168 @@ def stage_a_selection():
     )
 
 
+def cross_validation_plan():
+    assignments = (
+        SimpleNamespace(
+            email_id="email_002",
+            category="spam",
+            group_id="group_b",
+            fold=2,
+        ),
+        SimpleNamespace(
+            email_id="email_001",
+            category="bl_comparison",
+            group_id="group_a",
+            fold=1,
+        ),
+    )
+    folds = (
+        SimpleNamespace(
+            fold=2,
+            training_size=1,
+            validation_size=1,
+            training_category_counts={"bl_comparison": 1, "spam": 0},
+            validation_category_counts={"bl_comparison": 0, "spam": 1},
+            validation_proportion_deviations={
+                "bl_comparison": -0.5,
+                "spam": 0.5,
+            },
+        ),
+        SimpleNamespace(
+            fold=1,
+            training_size=1,
+            validation_size=1,
+            training_category_counts={"bl_comparison": 0, "spam": 1},
+            validation_category_counts={"bl_comparison": 1, "spam": 0},
+            validation_proportion_deviations={
+                "bl_comparison": 0.5,
+                "spam": -0.5,
+            },
+        ),
+    )
+    return SimpleNamespace(
+        assignments=assignments,
+        folds=folds,
+        seed=20260921,
+        n_splits=2,
+        source_id_hash=id_hash(item.email_id for item in assignments),
+        total_groups=2,
+        overall_category_counts={"spam": 1, "bl_comparison": 1},
+        sklearn_version="1.9.1",
+    )
+
+
 class SplitArtifactTests(unittest.TestCase):
+    def test_cross_validation_writes_deterministic_sorted_artifacts(self):
+        plan = cross_validation_plan()
+        annotation_sha256 = "a" * 64
+        with TemporaryDirectory() as temp_dir:
+            output_dir = Path(temp_dir) / "out"
+
+            write_cross_validation(output_dir, plan, annotation_sha256)
+            first_bytes = {
+                path.name: path.read_bytes() for path in sorted(output_dir.iterdir())
+            }
+            write_cross_validation(output_dir, plan, annotation_sha256)
+            second_bytes = {
+                path.name: path.read_bytes() for path in sorted(output_dir.iterdir())
+            }
+
+            with (output_dir / "cv_assignments.csv").open(
+                encoding="utf-8", newline=""
+            ) as stream:
+                reader = csv.DictReader(stream)
+                fieldnames = reader.fieldnames
+                assignments = list(reader)
+            folds = json.loads(
+                (output_dir / "cv_folds.json").read_text(encoding="utf-8")
+            )
+
+        self.assertEqual(first_bytes, second_bytes)
+        self.assertEqual(
+            fieldnames, ["email_id", "category", "group_id", "fold"]
+        )
+        self.assertEqual(
+            [item["email_id"] for item in assignments],
+            ["email_001", "email_002"],
+        )
+        self.assertEqual(
+            folds,
+            {
+                "annotation_sha256": annotation_sha256,
+                "folds": [
+                    {
+                        "fold": 1,
+                        "training_category_counts": {
+                            "bl_comparison": 0,
+                            "spam": 1,
+                        },
+                        "training_size": 1,
+                        "validation_category_counts": {
+                            "bl_comparison": 1,
+                            "spam": 0,
+                        },
+                        "validation_size": 1,
+                        "validation_proportion_deviations": {
+                            "bl_comparison": 0.5,
+                            "spam": -0.5,
+                        },
+                    },
+                    {
+                        "fold": 2,
+                        "training_category_counts": {
+                            "bl_comparison": 1,
+                            "spam": 0,
+                        },
+                        "training_size": 1,
+                        "validation_category_counts": {
+                            "bl_comparison": 0,
+                            "spam": 1,
+                        },
+                        "validation_size": 1,
+                        "validation_proportion_deviations": {
+                            "bl_comparison": -0.5,
+                            "spam": 0.5,
+                        },
+                    },
+                ],
+                "n_splits": 2,
+                "overall_category_counts": {
+                    "bl_comparison": 1,
+                    "spam": 1,
+                },
+                "schema_version": 1,
+                "seed": 20260921,
+                "sklearn_version": "1.9.1",
+                "source_id_hash": plan.source_id_hash,
+                "strategy": "StratifiedGroupKFold",
+                "total_groups": 2,
+                "total_records": 2,
+            },
+        )
+
+    def test_cross_validation_rejects_invalid_annotation_hash(self):
+        with TemporaryDirectory() as temp_dir:
+            output_dir = Path(temp_dir) / "out"
+
+            with self.assertRaisesRegex(ArtifactError, "annotation hash"):
+                write_cross_validation(output_dir, cross_validation_plan(), "not-a-hash")
+
+            self.assertFalse(output_dir.exists())
+
+    def test_cross_validation_conflict_does_not_partially_write(self):
+        with TemporaryDirectory() as temp_dir:
+            output_dir = Path(temp_dir) / "out"
+            output_dir.mkdir()
+            folds_path = output_dir / "cv_folds.json"
+            folds_path.write_bytes(b"human-owned\n")
+
+            with self.assertRaisesRegex(ArtifactError, "conflicting file"):
+                write_cross_validation(output_dir, cross_validation_plan(), "b" * 64)
+
+            self.assertEqual(folds_path.read_bytes(), b"human-owned\n")
+            self.assertFalse((output_dir / "cv_assignments.csv").exists())
+
     def test_stage_a_writes_deterministic_manifests_and_blank_annotations(self):
         selection = stage_a_selection()
         with TemporaryDirectory() as temp_dir:
