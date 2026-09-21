@@ -2,6 +2,27 @@
 
 Email classification and shipping-document verification project.
 
+## Architecture
+
+Three independent modules under `src/`, sharing one dependency:
+
+- `email_classification` — routes inbox emails, built
+- `document_extraction` — reads SI/BL fields, interface only
+- `verification` — compares SI against BL, interface only
+- `contracts` — schemas, handoff files, and ports that the three share
+- `pipeline` — wires the ports together
+
+Modules never import each other; they exchange versioned JSON handoff files
+through `contracts`. `tests/test_module_boundaries.py` enforces that rule.
+See [docs/architecture.md](docs/architecture.md) before adding a module.
+
+## Development setup
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+.\.venv\Scripts\python.exe -m pytest
+```
+
 ## Participant data
 
 Use `download2/` as the application input. The original inbox and attachment
@@ -68,6 +89,12 @@ The selected model and evaluation reports are written under
 `outputs/usable/` or `outputs/unusable/`. Only `bl_comparison` records with
 readable SI and BL attachment paths enter `usable`; uncertain, conflicting, or
 incomplete cases carry an explicit `human_review` reason.
+
+The same run publishes `outputs/handoff/classification.json`, the contract-shaped
+input for document extraction. It carries published category names and the
+resolved SI/BL paths for every `should_compare` email. Read it with
+`contracts.read_handoff`, never by globbing `outputs/usable/` — those records are
+the classification module's own diagnostics and are not a stable interface.
 
 The reported five-fold out-of-fold metrics are a development estimate, not an
 independent final-test score. The production model is fitted on all 520 labels
