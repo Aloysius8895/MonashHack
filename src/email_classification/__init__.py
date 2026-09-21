@@ -5,6 +5,18 @@ from .data_loader import (
     ValidationResult,
     load_and_validate,
 )
+from .features import build_email_text
+from .modeling import (
+    CANDIDATE_NAMES,
+    CandidateResult,
+    ModelingError,
+    OOFPrediction,
+    evaluate_candidates,
+    fit_final_model,
+    score_mapping,
+    select_best_candidate,
+)
+from .routing import RoutingDecision, route_prediction
 from .cross_validation import (
     CATEGORY_LABEL_MAP,
     DEFAULT_CV_FOLDS,
@@ -42,6 +54,17 @@ __all__ = [
     "ValidationIssue",
     "ValidationResult",
     "load_and_validate",
+    "build_email_text",
+    "CANDIDATE_NAMES",
+    "CandidateResult",
+    "ModelingError",
+    "OOFPrediction",
+    "evaluate_candidates",
+    "fit_final_model",
+    "score_mapping",
+    "select_best_candidate",
+    "RoutingDecision",
+    "route_prediction",
     "CATEGORY_LABEL_MAP",
     "DEFAULT_CV_FOLDS",
     "CVAssignment",
